@@ -76,8 +76,11 @@ def participant_has_conflict(session, participant_id: int, task: Task, exclude_t
 
 
 def candidate_score(participant: Participant, task: Task, totals: dict[int, int]) -> tuple[int, int, str]:
+    current_total = totals.get(participant.id, 0)
+    projected_total = current_total + task.points
     mismatch = 0 if task_preferred_by(task, participant) else 1
-    return (mismatch, totals.get(participant.id, 0), participant.name.lower())
+    # Fairness first: keep projected totals balanced, then use preference as tie-breaker.
+    return (projected_total, current_total, mismatch, participant.name.lower())
 
 
 def eligible_candidates(session, task: Task, excluded_ids: set[int] | None = None) -> list[Participant]:

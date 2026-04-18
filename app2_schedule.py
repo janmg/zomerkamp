@@ -70,13 +70,17 @@ def run_schedule(session, keep_existing: bool = False):
         open_slots = task.people_required - len(active_assignments)
 
         if open_slots > 0:
-            candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
-            if len(candidates) < open_slots:
+            initial_candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
+            if len(initial_candidates) < open_slots:
                 print(
-                    f"  [WARN] Task '{task.name}' day {task.day}: only {len(active_assignments) + len(candidates)}/{task.people_required} people available."
+                    f"  [WARN] Task '{task.name}' day {task.day}: only {len(active_assignments) + len(initial_candidates)}/{task.people_required} people available."
                 )
             lead_exists = any(assignment.role == "lead" for assignment in active_assignments)
-            for participant in candidates[: max(open_slots, 0)]:
+            for _ in range(max(open_slots, 0)):
+                candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
+                if not candidates:
+                    break
+                participant = candidates[0]
                 role = "helper" if lead_exists else "lead"
                 session.add(
                     Assignment(
@@ -86,8 +90,9 @@ def run_schedule(session, keep_existing: bool = False):
                         points_awarded=task.points,
                     )
                 )
+                session.flush()
+                assigned_ids.add(participant.id)
                 lead_exists = True
-            session.flush()
 
         ensure_single_lead(session, task)
         refresh_backup_for_task(session, task)

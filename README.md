@@ -107,7 +107,7 @@ python app2_schedule.py backup
 2. For each task, eligible candidates are people who:
    - are available in that day + time block
    - have no `Unavailability` record blocking them
-3. Candidates are sorted by preference match first, then lowest accumulated points.
+3. Candidates are ranked by lowest projected total points after assignment, with preference match used as a tie-breaker.
 4. The first candidate becomes the lead (earns points); the rest are helpers (earn points).
 5. One additional eligible person is assigned as backup (earns no points).
 
