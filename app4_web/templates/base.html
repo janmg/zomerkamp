@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap" rel="stylesheet">
   <title>{% block title %}Zomerkamp Super Version{% endblock %}</title>
   <style>
     :root {
-      --bg: #f3efe5;
-      --paper: #fffdf8;
-      --ink: #1f2a2a;
-      --muted: #5d6a68;
-      --accent: #c14d2f;
-      --accent-deep: #8e321d;
-      --secondary: #2f6f62;
-      --line: #e6dccd;
-      --shadow: 0 12px 30px rgba(76, 61, 49, 0.12);
+      --bg: #f1ede4;
+      --paper: #ffffff;
+      --ink: #232323;
+      --muted: #5f6368;
+      --accent: #1a73e8;
+      --accent-deep: #1457ad;
+      --secondary: #0f9d58;
+      --line: #dde3ea;
+      --gold-line: #ffba00;
+      --shadow: 0 10px 24px rgba(28, 40, 54, 0.08);
     }
 
     * {
@@ -25,12 +29,22 @@
 
     body {
       min-height: 100vh;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Roboto", Arial, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(193, 77, 47, 0.12), transparent 28%),
-        radial-gradient(circle at right 15%, rgba(47, 111, 98, 0.12), transparent 24%),
-        linear-gradient(180deg, #f8f3eb 0%, var(--bg) 100%);
+      background: linear-gradient(180deg, #fdfdfd 0 180px, var(--bg) 180px 100%);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      left: 0;
+      top: 180px;
+      width: 100%;
+      height: 8px;
+      background: var(--gold-line);
+      pointer-events: none;
+      z-index: 0;
     }
 
     a {
@@ -39,15 +53,18 @@
 
     header {
       padding: 2rem 1.25rem 1rem;
+      position: relative;
+      z-index: 1;
     }
 
     .hero {
       max-width: 1180px;
       margin: 0 auto;
-      background: linear-gradient(135deg, rgba(193, 77, 47, 0.96), rgba(142, 50, 29, 0.96));
-      color: #fff9f2;
-      border-radius: 24px;
-      padding: 1.4rem 1.6rem;
+      background: linear-gradient(120deg, #ffffff 0%, #f7fbff 52%, #f2f8ff 100%);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.25rem 1.5rem;
       box-shadow: var(--shadow);
     }
 
@@ -59,15 +76,35 @@
       flex-wrap: wrap;
     }
 
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand-logo {
+      width: clamp(58px, 9vw, 88px);
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      background: #fff;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
     .hero h1 {
       font-size: clamp(1.8rem, 4vw, 3rem);
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
+      color: var(--accent-deep);
     }
 
     .hero p {
       margin-top: 0.4rem;
       max-width: 60ch;
-      color: rgba(255, 249, 242, 0.9);
+      color: var(--muted);
     }
 
     nav {
@@ -81,30 +118,41 @@
       text-decoration: none;
       padding: 0.65rem 0.9rem;
       border-radius: 999px;
-      background: rgba(255, 249, 242, 0.14);
-      color: rgba(255, 255, 255, 0.92);
-      font-weight: 700;
+      border: 1px solid rgba(26, 115, 232, 0.22);
+      background: #f4f9ff;
+      color: var(--accent-deep);
+      font-weight: 500;
       transition: transform 120ms ease, background 120ms ease;
     }
 
     nav a:hover,
     nav a.active {
       transform: translateY(-1px);
-      background: rgba(255, 249, 242, 0.26);
+      background: #e7f1ff;
+      border-color: rgba(26, 115, 232, 0.45);
     }
 
     main {
       max-width: 1180px;
       margin: 0 auto;
       padding: 1rem 1.25rem 2rem;
+      position: relative;
+      z-index: 1;
     }
 
     .panel {
       background: var(--paper);
-      border: 1px solid rgba(230, 220, 205, 0.85);
-      border-radius: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
       box-shadow: var(--shadow);
       padding: 1.4rem;
+      animation: fade-in-up 260ms ease;
+    }
+
+    .panel > * + * {
+      border-top: 1px solid var(--line);
+      margin-top: 1rem;
+      padding-top: 1rem;
     }
 
     h2 {
@@ -125,9 +173,9 @@
     }
 
     .stat {
-      background: #faf5ed;
+      background: #f8fbff;
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 14px;
       padding: 1rem;
     }
 
@@ -151,22 +199,25 @@
     .card {
       display: block;
       text-decoration: none;
-      background: linear-gradient(180deg, #fffaf2, #f7efe3);
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
       border: 1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 1.2rem;
       min-height: 180px;
-      box-shadow: 0 8px 18px rgba(76, 61, 49, 0.08);
+      box-shadow: 0 6px 16px rgba(28, 40, 54, 0.06);
+      transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
     }
 
     .card:hover {
-      border-color: rgba(193, 77, 47, 0.42);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(20, 87, 173, 0.12);
+      border-color: rgba(20, 87, 173, 0.38);
     }
 
     .card-kicker {
       color: var(--secondary);
       font-size: 0.82rem;
-      font-weight: 700;
+      font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
@@ -183,16 +234,16 @@
 
     .person-card,
     .day-block {
-      background: #fffdf8;
+      background: #ffffff;
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 14px;
       overflow: hidden;
       margin-bottom: 1rem;
     }
 
     .person-header,
     .day-header {
-      background: linear-gradient(90deg, rgba(47, 111, 98, 0.14), rgba(47, 111, 98, 0.04));
+      background: linear-gradient(90deg, rgba(26, 115, 232, 0.1), rgba(26, 115, 232, 0.02));
       padding: 0.95rem 1.1rem;
       display: flex;
       justify-content: space-between;
@@ -210,7 +261,7 @@
     }
 
     .pts {
-      background: rgba(193, 77, 47, 0.12);
+      background: rgba(20, 87, 173, 0.1);
       color: var(--accent-deep);
       border-radius: 999px;
       padding: 0.3rem 0.7rem;
@@ -236,7 +287,7 @@
       font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      background: #faf5ed;
+      background: #f7fbff;
     }
 
     tr:last-child td {
@@ -254,18 +305,18 @@
     }
 
     .badge-lead {
-      background: rgba(193, 77, 47, 0.16);
+      background: rgba(26, 115, 232, 0.14);
       color: var(--accent-deep);
     }
 
     .badge-helper {
-      background: rgba(47, 111, 98, 0.16);
+      background: rgba(15, 157, 88, 0.16);
       color: var(--secondary);
     }
 
     .badge-backup {
-      background: rgba(93, 106, 104, 0.16);
-      color: #465250;
+      background: rgba(95, 99, 104, 0.16);
+      color: #4d5258;
     }
 
     .quiet {
@@ -276,6 +327,17 @@
       padding: 1rem 1.1rem;
       color: var(--muted);
       font-style: italic;
+    }
+
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 760px) {
@@ -297,6 +359,10 @@
       .hero {
         padding: 1.1rem;
       }
+
+      .brand-logo {
+        width: 58px;
+      }
     }
   </style>
 </head>
@@ -304,9 +370,12 @@
   <header>
     <div class="hero">
       <div class="hero-top">
-        <div>
-          <h1>Zomerkamp Super Version</h1>
-          <p>One merged roster system combining the stronger admin and scheduling flow with the richer data capture and web navigation from both earlier versions.</p>
+        <div class="brand">
+          <img src="{{ url_for('static', filename='polaris.png') }}" alt="Polaris logo" class="brand-logo">
+          <div class="brand-copy">
+            <h1>Zomerkamp Super Version</h1>
+            <p>One merged roster system combining the stronger admin and scheduling flow with the richer data capture and web navigation from both earlier versions.</p>
+          </div>
         </div>
       </div>
       <nav>

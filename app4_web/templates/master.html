@@ -2,7 +2,7 @@
 {% block title %}Master Sheet - Zomerkamp Super Version{% endblock %}
 {% block content %}
 <h2>Master Sheet</h2>
-<p class="intro">Full operational view across all days, with lead, helper, and backup coverage for every task.</p>
+<p class="intro">Full operational view across all days, with lead and helper coverage for every task.</p>
 
 {% for day, tasks in by_day.items() %}
 <div class="day-block">
@@ -21,7 +21,6 @@
         <th>Assigned</th>
         <th>Lead</th>
         <th>Helpers</th>
-        <th>Backup</th>
       </tr>
     </thead>
     <tbody>
@@ -49,14 +48,6 @@
             {% for helper in task.helpers %}
             <div>{{ helper.participant.name }}</div>
             {% endfor %}
-          {% else %}
-            <span class="quiet">-</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if task.backup %}
-            <div>{{ task.backup.participant.name }}</div>
-            <div class="quiet">{{ task.backup.participant.email }}</div>
           {% else %}
             <span class="quiet">-</span>
           {% endif %}

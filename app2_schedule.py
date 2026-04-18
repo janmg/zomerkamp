@@ -102,7 +102,7 @@ def run_schedule(session, keep_existing: bool = False):
         lead = next((assignment.participant.name for assignment in refreshed.assignments if assignment.role == "lead"), "-")
         helpers = [assignment.participant.name for assignment in refreshed.assignments if assignment.role == "helper"]
         backup = next((assignment.participant.name for assignment in refreshed.assignments if assignment.role == "backup"), "-")
-        print(f"  Task '{refreshed.name}' day {refreshed.day}: lead={lead}, helpers={helpers or '-'}, backup={backup}")
+        print(f"  Task '{refreshed.name}' day {refreshed.day}: lead={lead}, helpers={helpers or '-'}, reserve={backup}")
 
     print("\nSchedule generated successfully.")
 
@@ -114,10 +114,10 @@ def refresh_backups(session):
         session.commit()
         backup = next((assignment.participant.name for assignment in task.assignments if assignment.role == "backup"), None)
         if backup:
-            print(f"  Backup for '{task.name}' day {task.day}: {backup}")
+            print(f"  Reserve for '{task.name}' day {task.day}: {backup}")
         else:
-            print(f"  [WARN] No backup available for '{task.name}' day {task.day}.")
-    print("\nBackups refreshed.")
+            print(f"  [WARN] No reserve available for '{task.name}' day {task.day}.")
+    print("\nReserves refreshed.")
 
 
 def show_schedule(session):
@@ -130,7 +130,6 @@ def show_schedule(session):
     for task in tasks:
         lead = next((assignment.participant.name for assignment in task.assignments if assignment.role == "lead"), "-")
         helpers = ", ".join(assignment.participant.name for assignment in task.assignments if assignment.role == "helper") or "-"
-        backup = next((assignment.participant.name for assignment in task.assignments if assignment.role == "backup"), "-")
         rows.append([
             task.day,
             f"{task.begin_time.strftime('%H:%M')}-{task.end_time.strftime('%H:%M')}",
@@ -138,10 +137,9 @@ def show_schedule(session):
             task.points,
             lead,
             helpers,
-            backup,
         ])
 
-    print(tabulate(rows, headers=["Day", "Time", "Task", "Pts", "Lead", "Helpers", "Backup"], tablefmt="rounded_outline"))
+    print(tabulate(rows, headers=["Day", "Time", "Task", "Pts", "Lead", "Helpers"], tablefmt="rounded_outline"))
 
     totals = compute_total_points(session)
     leaderboard = sorted(session.query(Participant).all(), key=lambda participant: totals.get(participant.id, 0), reverse=True)
@@ -221,7 +219,7 @@ def build_parser():
     export_parser = sub.add_parser("export", help="Export the schedule to CSV files.")
     export_parser.add_argument("--output", metavar="DIR", default="./exports", help="Directory for CSV output.")
 
-    sub.add_parser("backup", help="Refresh backup assignments for all tasks.")
+    sub.add_parser("backup", help="Refresh reserve assignments for all tasks.")
     return parser
 
 

@@ -4,8 +4,14 @@
 <h2>Schedule Per Participant</h2>
 <p class="intro">Alphabetical participant view with task assignments, contact details, preferences, and remarks.</p>
 
+<div class="meta" style="margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
+  <label for="name-filter"><strong>Find participant:</strong></label>
+  <input id="name-filter" type="search" placeholder="Type a name..." style="padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; min-width: 220px;" autocomplete="off">
+  <span id="filter-status" class="quiet"></span>
+</div>
+
 {% for person in people %}
-<div class="person-card">
+<div class="person-card" data-person-name="{{ person.name|lower }}">
   <div class="person-header">
     <div>
       <strong>{{ person.name }}</strong>
@@ -53,4 +59,43 @@
 {% else %}
 <div class="empty">No participants found.</div>
 {% endfor %}
+
+<script>
+  (function () {
+    const input = document.getElementById("name-filter");
+    const status = document.getElementById("filter-status");
+    const cards = Array.from(document.querySelectorAll(".person-card[data-person-name]"));
+    const total = cards.length;
+
+    function updateStatus(visibleCount, query) {
+      if (!status) {
+        return;
+      }
+      if (!query) {
+        status.textContent = total ? "Showing all participants" : "";
+        return;
+      }
+      status.textContent = `${visibleCount} match${visibleCount === 1 ? "" : "es"}`;
+    }
+
+    function applyFilter() {
+      const query = (input?.value || "").trim().toLowerCase();
+      let visibleCount = 0;
+      for (const card of cards) {
+        const personName = card.dataset.personName || "";
+        const isVisible = !query || personName.includes(query);
+        card.style.display = isVisible ? "" : "none";
+        if (isVisible) {
+          visibleCount += 1;
+        }
+      }
+      updateStatus(visibleCount, query);
+    }
+
+    if (input) {
+      input.addEventListener("input", applyFilter);
+      applyFilter();
+    }
+  })();
+</script>
 {% endblock %}

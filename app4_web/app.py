@@ -75,7 +75,12 @@ def schedule():
         people = []
         for participant in sorted(session.query(Participant).all(), key=lambda person: person.name.lower()):
             tasks = []
-            for assignment in sorted(participant.assignments, key=lambda item: (item.task.day, item.task.begin_time, item.task.name)):
+            visible_assignments = [
+                assignment
+                for assignment in participant.assignments
+                if assignment.role in {"lead", "helper"}
+            ]
+            for assignment in sorted(visible_assignments, key=lambda item: (item.task.day, item.task.begin_time, item.task.name)):
                 tasks.append(
                     {
                         "day": assignment.task.day,
@@ -110,6 +115,7 @@ def master():
         by_day: dict[int, list] = defaultdict(list)
         for task in session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all():
             assignments = sorted(task.assignments, key=lambda item: (["lead", "helper", "backup"].index(item.role), item.participant.name.lower()))
+            active_assignments = [assignment for assignment in assignments if assignment.role in {"lead", "helper"}]
             by_day[task.day].append(
                 {
                     "id": task.id,
@@ -119,10 +125,9 @@ def master():
                     "points": task.points,
                     "people_required": task.people_required,
                     "time_block": task.time_block,
-                    "assignment_count": len(assignments),
+                    "assignment_count": len(active_assignments),
                     "lead": next((assignment for assignment in assignments if assignment.role == "lead"), None),
                     "helpers": [assignment for assignment in assignments if assignment.role == "helper"],
-                    "backup": next((assignment for assignment in assignments if assignment.role == "backup"), None),
                     "all_assigned": assignments,
                 }
             )
