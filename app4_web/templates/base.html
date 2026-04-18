@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Zomerkamp Super Version{% endblock %}</title>
+  <style>
+    :root {
+      --bg: #f3efe5;
+      --paper: #fffdf8;
+      --ink: #1f2a2a;
+      --muted: #5d6a68;
+      --accent: #c14d2f;
+      --accent-deep: #8e321d;
+      --secondary: #2f6f62;
+      --line: #e6dccd;
+      --shadow: 0 12px 30px rgba(76, 61, 49, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(193, 77, 47, 0.12), transparent 28%),
+        radial-gradient(circle at right 15%, rgba(47, 111, 98, 0.12), transparent 24%),
+        linear-gradient(180deg, #f8f3eb 0%, var(--bg) 100%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    header {
+      padding: 2rem 1.25rem 1rem;
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(193, 77, 47, 0.96), rgba(142, 50, 29, 0.96));
+      color: #fff9f2;
+      border-radius: 24px;
+      padding: 1.4rem 1.6rem;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin-top: 0.4rem;
+      max-width: 60ch;
+      color: rgba(255, 249, 242, 0.9);
+    }
+
+    nav {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      text-decoration: none;
+      padding: 0.65rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(255, 249, 242, 0.14);
+      color: rgba(255, 255, 255, 0.92);
+      font-weight: 700;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      transform: translateY(-1px);
+      background: rgba(255, 249, 242, 0.26);
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 2rem;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid rgba(230, 220, 205, 0.85);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 1.4rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .intro {
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stat {
+      background: #faf5ed;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--accent-deep);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: linear-gradient(180deg, #fffaf2, #f7efe3);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 1.2rem;
+      min-height: 180px;
+      box-shadow: 0 8px 18px rgba(76, 61, 49, 0.08);
+    }
+
+    .card:hover {
+      border-color: rgba(193, 77, 47, 0.42);
+    }
+
+    .card-kicker {
+      color: var(--secondary);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card h3 {
+      font-size: 1.45rem;
+      margin: 0.55rem 0;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .person-card,
+    .day-block {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .person-header,
+    .day-header {
+      background: linear-gradient(90deg, rgba(47, 111, 98, 0.14), rgba(47, 111, 98, 0.04));
+      padding: 0.95rem 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .meta {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .pts {
+      background: rgba(193, 77, 47, 0.12);
+      color: var(--accent-deep);
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.85rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: #faf5ed;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-lead {
+      background: rgba(193, 77, 47, 0.16);
+      color: var(--accent-deep);
+    }
+
+    .badge-helper {
+      background: rgba(47, 111, 98, 0.16);
+      color: var(--secondary);
+    }
+
+    .badge-backup {
+      background: rgba(93, 106, 104, 0.16);
+      color: #465250;
+    }
+
+    .quiet {
+      color: var(--muted);
+    }
+
+    .empty {
+      padding: 1rem 1.1rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 760px) {
+      main,
+      header {
+        padding-left: 0.85rem;
+        padding-right: 0.85rem;
+      }
+
+      .panel {
+        padding: 1rem;
+      }
+
+      th,
+      td {
+        padding: 0.7rem 0.65rem;
+      }
+
+      .hero {
+        padding: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>Zomerkamp Super Version</h1>
+          <p>One merged roster system combining the stronger admin and scheduling flow with the richer data capture and web navigation from both earlier versions.</p>
+        </div>
+      </div>
+      <nav>
+        <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Home</a>
+        <a href="/leaderboard" {% if request.path == '/leaderboard' %}class="active"{% endif %}>Leaderboard</a>
+        <a href="/schedule" {% if request.path == '/schedule' %}class="active"{% endif %}>Schedule</a>
+        <a href="/master" {% if request.path == '/master' %}class="active"{% endif %}>Master Sheet</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="panel">
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+</body>
+</html>

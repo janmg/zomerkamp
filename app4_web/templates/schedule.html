@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Schedule - Zomerkamp Super Version{% endblock %}
+{% block content %}
+<h2>Schedule Per Participant</h2>
+<p class="intro">Alphabetical participant view with task assignments, contact details, preferences, and remarks.</p>
+
+{% for person in people %}
+<div class="person-card">
+  <div class="person-header">
+    <div>
+      <strong>{{ person.name }}</strong>
+      <div class="meta">
+        <span>{{ person.email }}</span>
+        <span>{{ person.phone }}</span>
+        <span>{{ person.preference }}</span>
+      </div>
+      {% if person.remarks != '-' %}
+      <div class="quiet" style="margin-top:0.35rem;">{{ person.remarks }}</div>
+      {% endif %}
+    </div>
+    <span class="pts">{{ person.total_points }} pts</span>
+  </div>
+
+  {% if person.tasks %}
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Task</th>
+        <th>Block</th>
+        <th>Role</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in person.tasks %}
+      <tr>
+        <td>Day {{ task.day }}</td>
+        <td>{{ task.begin }}-{{ task.end }}</td>
+        <td>{{ task.name }}</td>
+        <td>{{ task.block }}</td>
+        <td><span class="badge badge-{{ task.role }}">{{ task.role }}</span></td>
+        <td>{{ task.points }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No assignments yet.</div>
+  {% endif %}
+</div>
+{% else %}
+<div class="empty">No participants found.</div>
+{% endfor %}
+{% endblock %}

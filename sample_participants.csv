@@ -1,0 +1,13 @@
+name,email,phone,day1_morning,day1_afternoon,day1_evening,day2_morning,day2_afternoon,day2_evening,day3_morning,day3_afternoon,day3_evening,day4_morning,day4_afternoon,day4_evening,preference,remarks
+Alice Johnson,alice@example.com,06-1234567,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,serving food,Prefers kitchen work
+Bob Smith,bob@example.com,06-2345678,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,organize afternoon games,Great with coordination
+Charlie Brown,charlie@example.com,06-3456789,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE,cleaning toilets,Willing to do any task
+Diana Prince,diana@example.com,06-4567890,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,serving snacks,Has allergy considerations
+Eve Wilson,eve@example.com,06-5678901,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,TRUE,cleaning after food,Prefers morning shift
+Frank Miller,frank@example.com,06-6789012,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,do not care,Very flexible
+Grace Lee,grace@example.com,06-7890123,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,serving snacks,Energetic and outgoing
+Henry Davis,henry@example.com,06-8901234,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,cleaning toilets,Prefers physical work
+Ivy Chen,ivy@example.com,06-9012345,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,organize afternoon games,Great event coordinator
+Jack Robinson,jack@example.com,06-0123456,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,serving food,Has meal prep experience
+Kate Murphy,kate@example.com,06-1234560,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE,cleaning after food,Detail-oriented
+Liam O'Brien,liam@example.com,06-2345671,TRUE,FALSE,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,do not care,Flexible with schedule

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Home - Zomerkamp Super Version{% endblock %}
+{% block content %}
+<h2>Roster Overview</h2>
+<p class="intro">Use the merged web interface to inspect workload balance, per-person schedules, and task coverage from a single place.</p>
+
+<div class="stats">
+  <div class="stat">
+    <strong>{{ participant_count }}</strong>
+    <span>participants</span>
+  </div>
+  <div class="stat">
+    <strong>{{ task_count }}</strong>
+    <span>tasks</span>
+  </div>
+  <div class="stat">
+    <strong>{{ assigned_count }}</strong>
+    <span>total assignments</span>
+  </div>
+  <div class="stat">
+    <strong>{% if top_volunteer %}{{ top_volunteer.points }}{% else %}-{% endif %}</strong>
+    <span>{% if top_volunteer %}top score: {{ top_volunteer.name }}{% else %}no scores yet{% endif %}</span>
+  </div>
+</div>
+
+<div class="grid">
+  <a href="/leaderboard" class="card">
+    <div class="card-kicker">Fairness</div>
+    <h3>Leaderboard</h3>
+    <p>Rank participants by earned points, review preferences, and quickly spot uneven workload.</p>
+  </a>
+  <a href="/schedule" class="card">
+    <div class="card-kicker">People</div>
+    <h3>Schedule Per Person</h3>
+    <p>See each volunteer’s assignments, contact details, remarks, and current point total in alphabetical order.</p>
+  </a>
+  <a href="/master" class="card">
+    <div class="card-kicker">Operations</div>
+    <h3>Master Sheet</h3>
+    <p>Review every task by day and time, including lead, helpers, backup coverage, and assigned-count status.</p>
+  </a>
+</div>
+{% endblock %}

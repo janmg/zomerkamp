@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Master Sheet - Zomerkamp Super Version{% endblock %}
+{% block content %}
+<h2>Master Sheet</h2>
+<p class="intro">Full operational view across all days, with lead, helper, and backup coverage for every task.</p>
+
+{% for day, tasks in by_day.items() %}
+<div class="day-block">
+  <div class="day-header">
+    <strong>Day {{ day }}</strong>
+    <span class="quiet">{{ tasks|length }} task(s)</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Task</th>
+        <th>Block</th>
+        <th>Pts</th>
+        <th>Req</th>
+        <th>Assigned</th>
+        <th>Lead</th>
+        <th>Helpers</th>
+        <th>Backup</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr>
+        <td>{{ task.begin }}-{{ task.end }}</td>
+        <td>
+          <strong>{{ task.name }}</strong>
+          <div class="quiet">Task ID {{ task.id }}</div>
+        </td>
+        <td>{{ task.time_block }}</td>
+        <td>{{ task.points }}</td>
+        <td>{{ task.people_required }}</td>
+        <td>{{ task.assignment_count }}</td>
+        <td>
+          {% if task.lead %}
+            <div>{{ task.lead.participant.name }}</div>
+            <div class="quiet">{{ task.lead.participant.email }}</div>
+          {% else %}
+            <span class="quiet">-</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if task.helpers %}
+            {% for helper in task.helpers %}
+            <div>{{ helper.participant.name }}</div>
+            {% endfor %}
+          {% else %}
+            <span class="quiet">-</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if task.backup %}
+            <div>{{ task.backup.participant.name }}</div>
+            <div class="quiet">{{ task.backup.participant.email }}</div>
+          {% else %}
+            <span class="quiet">-</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">No tasks found.</div>
+{% endfor %}
+{% endblock %}
