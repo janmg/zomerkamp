@@ -51,7 +51,7 @@ class Participant(Base):
         server_default="whatsapp",
     )
     group = Column(
-        Enum(*GROUPS, name="group_enum"),
+        String(100),
         nullable=True,
         default=None,
     )

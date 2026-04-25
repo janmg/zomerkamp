@@ -41,8 +41,9 @@
         <td><strong>{{ person.name }}</strong></td>
         <td>
           <div class="group-balls" data-person-id="{{ person.id }}">
+            {% set active_groups = (person.group or '').split(',') %}
             {% for g in groups %}
-            <button type="button" class="group-ball{% if g == person.group %} active{% endif %}" data-group="{{ g }}">{{ g }}</button>
+            <button type="button" class="group-ball{% if g in active_groups %} active{% endif %}" data-group="{{ g }}">{{ g }}</button>
             {% endfor %}
           </div>
         </td>
@@ -82,14 +83,10 @@
 
     container.querySelectorAll(".group-ball").forEach(function (ball) {
       ball.addEventListener("click", function () {
-        const isActive = ball.classList.contains("active");
-        // Deselect all
-        container.querySelectorAll(".group-ball").forEach(function (b) { b.classList.remove("active"); });
-        if (!isActive) {
-          ball.classList.add("active");
-        }
+        ball.classList.toggle("active");
         if (hiddenGroup) {
-          hiddenGroup.value = isActive ? "" : ball.dataset.group;
+          const selected = Array.from(container.querySelectorAll(".group-ball.active")).map(function (b) { return b.dataset.group; });
+          hiddenGroup.value = selected.join(",");
         }
       });
     });

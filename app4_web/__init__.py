@@ -26,11 +26,18 @@ def _apply_migrations() -> None:
         try:
             conn.execute(text(
                 "ALTER TABLE participants ADD COLUMN `group` "
-                "ENUM('1','2','3a','3b','4','5','6+7','8') NULL DEFAULT NULL"
+                "VARCHAR(100) NULL DEFAULT NULL"
             ))
             conn.commit()
         except Exception:
             pass  # Column already exists
+        try:
+            conn.execute(text(
+                "ALTER TABLE participants MODIFY COLUMN `group` VARCHAR(100) NULL DEFAULT NULL"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Already VARCHAR
 
 
 def create_app() -> Flask:

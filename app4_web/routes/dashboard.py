@@ -158,9 +158,8 @@ def participants():
             messaging = request.form.get("messaging", "whatsapp")
             if messaging not in MESSAGING_APPS:
                 messaging = "whatsapp"
-            group = request.form.get("group") or None
-            if group not in GROUPS:
-                group = None
+            raw_group = request.form.get("group") or ""
+            group = ",".join(g for g in raw_group.split(",") if g in GROUPS) or None
             if participant_id:
                 person = session.get(Participant, participant_id)
                 if person:
