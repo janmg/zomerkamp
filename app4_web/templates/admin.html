@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_messaging_icons.html" import messaging_icon %}
 {% block title %}Admin - Zomerkamp Super Version{% endblock %}
 {% block content %}
 <h2>Admin Panel</h2>
@@ -113,7 +114,7 @@
       <td>{{ row.id }}</td>
       <td>{{ row.name }}</td>
       <td>{{ row.email }}</td>
-      <td>{{ row.phone }}</td>
+      <td style="white-space:nowrap;">{{ messaging_icon(row.messaging) }} {{ row.phone }}</td>
       <td>{{ row.preference }}</td>
       <td>{{ row.points }}</td>
       <td>{{ "YES" if row.excluded else "no" }}</td>

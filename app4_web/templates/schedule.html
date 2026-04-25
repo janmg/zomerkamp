@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_messaging_icons.html" import messaging_icon %}
 {% block title %}Schedule - Zomerkamp Super Version{% endblock %}
 {% block content %}
 {% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
@@ -34,7 +35,7 @@
       <strong>{{ person.name }}</strong>
       <div class="meta">
         <span>{{ person.email }}</span>
-        <span>{{ person.phone }}</span>
+        <span style="display:inline-flex; align-items:center; gap:0.3rem;">{{ messaging_icon(person.messaging) }}{{ person.phone }}</span>
         <span>{{ person.preference }}</span>
       </div>
       {% if person.remarks != '-' %}

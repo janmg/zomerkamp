@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_messaging_icons.html" import messaging_icon %}
 {% block title %}Leaderboard - Zomerkamp Super Version{% endblock %}
 {% block content %}
 <h2>Points Leaderboard</h2>
@@ -25,7 +26,7 @@
       <td><strong>{{ row.name }}</strong></td>
       <td>
         <div>{{ row.email }}</div>
-        <div class="quiet">{{ row.phone }}</div>
+        <div class="quiet" style="display:flex; align-items:center; gap:0.3rem;">{{ messaging_icon(row.messaging) }}{{ row.phone }}</div>
       </td>
       <td>{{ row.preference }}</td>
       <td>{{ row.task_count }}</td>

@@ -31,6 +31,7 @@ def list_people(session) -> list[dict]:
             "name": participant.name,
             "email": participant.email,
             "phone": participant.phone or "-",
+            "messaging": participant.messaging or "none",
             "preference": participant.preference,
             "points": totals.get(participant.id, 0),
             "remarks": participant.remarks or "-",
