@@ -1,13 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Master Sheet - Zomerkamp Super Version{% endblock %}
 {% block content %}
+{% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
 <h2>Master Sheet</h2>
 <p class="intro">Full operational view across all days, with lead and helper coverage for every task.</p>
 
+<div class="meta" style="margin-bottom: 1rem; align-items: center; gap: 0.6rem;">
+  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+    <input type="checkbox" id="upcoming-toggle" checked style="width:1.1rem; height:1.1rem; cursor:pointer;">
+    <strong>Upcoming only</strong>
+  </label>
+  <span class="quiet" id="upcoming-status"></span>
+</div>
+
 {% for day, tasks in by_day.items() %}
-<div class="day-block">
+<div class="day-block" data-day-block>
   <div class="day-header">
-    <strong>Day {{ day }}</strong>
+    <strong>{{ day_names[day] | default("Day " ~ day) }}</strong>
     <span class="quiet">{{ tasks|length }} task(s)</span>
   </div>
   <table>
@@ -16,28 +25,22 @@
         <th>Time</th>
         <th>Task</th>
         <th>Block</th>
-        <th>Pts</th>
-        <th>Req</th>
-        <th>Assigned</th>
         <th>Lead</th>
         <th>Helpers</th>
       </tr>
     </thead>
     <tbody>
       {% for task in tasks %}
-      <tr>
+      <tr data-end-iso="{{ task.end_iso }}">
         <td>{{ task.begin }}-{{ task.end }}</td>
         <td>
           <strong>{{ task.name }}</strong>
           <div class="quiet">Task ID {{ task.id }}</div>
         </td>
         <td>{{ task.time_block }}</td>
-        <td>{{ task.points }}</td>
-        <td>{{ task.people_required }}</td>
-        <td>{{ task.assignment_count }}</td>
         <td>
           {% if task.lead %}
-            <div>{{ task.lead.participant.name }}</div>
+            <div><a href="/schedule?name={{ task.lead.participant.name|urlencode }}">{{ task.lead.participant.name }}</a></div>
             <div class="quiet">{{ task.lead.participant.email }}</div>
           {% else %}
             <span class="quiet">-</span>
@@ -60,4 +63,64 @@
 {% else %}
 <div class="empty">No tasks found.</div>
 {% endfor %}
+
+<script>
+(function () {
+  const toggle = document.getElementById("upcoming-toggle");
+  const status = document.getElementById("upcoming-status");
+
+  function applyFilter() {
+    const upcomingOnly = toggle.checked;
+    const now = new Date();
+
+    // Collect all rows with end timestamps
+    const allRows = Array.from(document.querySelectorAll("tr[data-end-iso]"));
+
+    // Find the most recently ended row (latest end that is still in the past)
+    let latestPastRow = null;
+    let latestPastTime = null;
+    for (const row of allRows) {
+      const endTime = new Date(row.dataset.endIso);
+      if (endTime <= now) {
+        if (latestPastTime === null || endTime > latestPastTime) {
+          latestPastTime = endTime;
+          latestPastRow = row;
+        }
+      }
+    }
+
+    let hiddenCount = 0;
+    for (const row of allRows) {
+      const endTime = new Date(row.dataset.endIso);
+      const isPast = endTime <= now;
+      const isMostRecent = row === latestPastRow;
+
+      if (upcomingOnly && isPast && !isMostRecent) {
+        row.style.display = "none";
+        hiddenCount++;
+      } else {
+        row.style.display = "";
+        if (isPast) {
+          row.style.color = "var(--quiet, #888)";
+          row.style.opacity = "0.6";
+        } else {
+          row.style.color = "";
+          row.style.opacity = "";
+        }
+      }
+    }
+
+    // Hide day blocks that have no visible rows
+    for (const block of document.querySelectorAll("[data-day-block]")) {
+      const visibleRows = block.querySelectorAll("tbody tr[data-end-iso]:not([style*='display: none'])");
+      block.style.display = visibleRows.length === 0 ? "none" : "";
+    }
+
+    status.textContent = upcomingOnly && hiddenCount > 0 ? `${hiddenCount} past task(s) hidden` : "";
+  }
+
+  toggle.addEventListener("change", applyFilter);
+  applyFilter();
+})();
+</script>
 {% endblock %}

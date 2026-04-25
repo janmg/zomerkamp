@@ -1,12 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Schedule - Zomerkamp Super Version{% endblock %}
 {% block content %}
+{% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
+<style>
+  .person-header { position: relative; }
+  .qr-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.3rem 0.4rem;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    transition: background 0.15s, color 0.15s;
+    margin-left: 0.5rem;
+  }
+  .qr-btn:hover { background: var(--line); color: var(--ink); }
+</style>
 <h2>Schedule Per Participant</h2>
 <p class="intro">Alphabetical participant view with task assignments, contact details, preferences, and remarks.</p>
 
 <div class="meta" style="margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
   <label for="name-filter"><strong>Find participant:</strong></label>
-  <input id="name-filter" type="search" placeholder="Type a name..." style="padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; min-width: 220px;" autocomplete="off">
+  <input id="name-filter" type="search" placeholder="Type a name..." style="padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; min-width: 220px;" autocomplete="off" value="{{ name_filter|e }}">
   <span id="filter-status" class="quiet"></span>
 </div>
 
@@ -25,6 +42,9 @@
       {% endif %}
     </div>
     <span class="pts">{{ person.total_points }} pts</span>
+    <button class="qr-btn" data-qr-url="http://zomerkamp.ntc.fi/schedule?name={{ person.name|urlencode }}" title="Show QR code" aria-label="QR code for {{ person.name }}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+    </button>
   </div>
 
   {% if person.tasks %}
@@ -36,18 +56,29 @@
         <th>Task</th>
         <th>Block</th>
         <th>Role</th>
-        <th>Points</th>
+        <th>With</th>
       </tr>
     </thead>
     <tbody>
       {% for task in person.tasks %}
       <tr>
-        <td>Day {{ task.day }}</td>
+        <td>{{ day_names[task.day] | default("Day " ~ task.day) }}</td>
         <td>{{ task.begin }}-{{ task.end }}</td>
         <td>{{ task.name }}</td>
         <td>{{ task.block }}</td>
         <td><span class="badge badge-{{ task.role }}">{{ task.role }}</span></td>
-        <td>{{ task.points }}</td>
+        <td>
+          {% if task.task_lead or task.task_helpers %}
+            {% if task.task_lead %}
+            <div>{{ task.task_lead }} <span class="quiet">(lead)</span></div>
+            {% endif %}
+            {% for name in task.task_helpers %}
+            <div>{{ name }}</div>
+            {% endfor %}
+          {% else %}
+            <span class="quiet">-</span>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -59,6 +90,18 @@
 {% else %}
 <div class="empty">No participants found.</div>
 {% endfor %}
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<!-- QR overlay -->
+<div id="qr-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:16px; padding:2rem; text-align:center; max-width:320px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.25); position:relative;">
+    <button id="qr-close" aria-label="Close" style="position:absolute; top:0.75rem; right:0.75rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#555;">&times;</button>
+    <div id="qr-name" style="font-weight:700; font-size:1.1rem; margin-bottom:1rem;"></div>
+    <canvas id="qr-canvas" style="display:block; margin:0 auto;"></canvas>
+    <div id="qr-url" style="margin-top:0.75rem; font-size:0.78rem; color:#666; word-break:break-all;"></div>
+  </div>
+</div>
 
 <script>
   (function () {
@@ -95,7 +138,34 @@
     if (input) {
       input.addEventListener("input", applyFilter);
       applyFilter();
+      if (input.value) {
+        input.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
+
+    // QR overlay
+    const overlay = document.getElementById("qr-overlay");
+    const qrClose = document.getElementById("qr-close");
+    const qrCanvas = document.getElementById("qr-canvas");
+    const qrName = document.getElementById("qr-name");
+    const qrUrlLabel = document.getElementById("qr-url");
+
+    document.querySelectorAll(".qr-btn").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const url = btn.dataset.qrUrl;
+        const name = btn.closest(".person-card").querySelector("strong").textContent;
+        qrName.textContent = name;
+        qrUrlLabel.textContent = url;
+        overlay.style.display = "flex";
+        QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2 }, function () {});
+      });
+    });
+
+    function closeOverlay() { overlay.style.display = "none"; }
+    qrClose.addEventListener("click", closeOverlay);
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) closeOverlay(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeOverlay(); });
   })();
 </script>
 {% endblock %}
