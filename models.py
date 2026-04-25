@@ -10,6 +10,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
 from config import DATABASE_URL, PREFERENCES, TIME_BLOCKS
 
 MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+GROUPS = ["1", "2", "3a", "3b", "4", "5", "6+7", "8"]
 
 
 class Base(DeclarativeBase):
@@ -46,8 +47,13 @@ class Participant(Base):
     messaging = Column(
         Enum(*MESSAGING_APPS, name="messaging_enum"),
         nullable=False,
-        default="none",
-        server_default="none",
+        default="whatsapp",
+        server_default="whatsapp",
+    )
+    group = Column(
+        Enum(*GROUPS, name="group_enum"),
+        nullable=True,
+        default=None,
     )
     excluded_all_days = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
@@ -197,6 +203,14 @@ def init_db():
             conn.execute(text(
                 "ALTER TABLE participants ADD COLUMN messaging "
                 "ENUM('whatsapp','signal','telegram','none') NOT NULL DEFAULT 'none'"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
+        try:
+            conn.execute(text(
+                "ALTER TABLE participants ADD COLUMN `group` "
+                "ENUM('1','2','3a','3b','4','5','6+7','8') NULL DEFAULT NULL"
             ))
             conn.commit()
         except Exception:

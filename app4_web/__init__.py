@@ -18,7 +18,15 @@ def _apply_migrations() -> None:
         try:
             conn.execute(text(
                 "ALTER TABLE participants ADD COLUMN messaging "
-                "ENUM('whatsapp','signal','telegram','none') NOT NULL DEFAULT 'none'"
+                "ENUM('whatsapp','signal','telegram','none') NOT NULL DEFAULT 'whatsapp'"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
+        try:
+            conn.execute(text(
+                "ALTER TABLE participants ADD COLUMN `group` "
+                "ENUM('1','2','3a','3b','4','5','6+7','8') NULL DEFAULT NULL"
             ))
             conn.commit()
         except Exception:

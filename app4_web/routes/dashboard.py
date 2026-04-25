@@ -10,6 +10,7 @@ from models import Participant, Task, get_session
 from roster_logic import compute_total_points
 
 MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+GROUPS = ["1", "2", "3a", "3b", "4", "5", "6+7", "8"]
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -152,13 +153,17 @@ def participants():
     try:
         if request.method == "POST":
             participant_id = request.form.get("participant_id", type=int)
-            messaging = request.form.get("messaging", "none")
+            messaging = request.form.get("messaging", "whatsapp")
             if messaging not in MESSAGING_APPS:
-                messaging = "none"
+                messaging = "whatsapp"
+            group = request.form.get("group") or None
+            if group not in GROUPS:
+                group = None
             if participant_id:
                 person = session.get(Participant, participant_id)
                 if person:
                     person.messaging = messaging
+                    person.group = group
                     session.commit()
 
         people = [
@@ -167,11 +172,12 @@ def participants():
                 "name": p.name,
                 "email": p.email,
                 "phone": p.phone or "-",
-                "messaging": p.messaging if p.messaging else "none",
+                "messaging": p.messaging if p.messaging else "whatsapp",
+                "group": p.group or "",
             }
             for p in sorted(session.query(Participant).all(), key=lambda p: p.name.lower())
         ]
     finally:
         session.close()
 
-    return render_template("participants.html", people=people, messaging_apps=MESSAGING_APPS)
+    return render_template("participants.html", people=people, messaging_apps=MESSAGING_APPS, groups=GROUPS)
