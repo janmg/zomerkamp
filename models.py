@@ -9,6 +9,8 @@ from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
 
 from config import DATABASE_URL, PREFERENCES, TIME_BLOCKS
 
+MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+
 
 class Base(DeclarativeBase):
     pass
@@ -40,6 +42,12 @@ class Participant(Base):
         Enum(*PREFERENCES, name="preference_enum"),
         nullable=False,
         default="do not care",
+    )
+    messaging = Column(
+        Enum(*MESSAGING_APPS, name="messaging_enum"),
+        nullable=False,
+        default="none",
+        server_default="none",
     )
     excluded_all_days = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
@@ -181,4 +189,16 @@ def get_session():
 
 def init_db():
     Base.metadata.create_all(get_engine())
+    # Safe migration: add messaging column if it doesn't exist yet
+    from sqlalchemy import text
+    engine = get_engine()
+    with engine.connect() as conn:
+        try:
+            conn.execute(text(
+                "ALTER TABLE participants ADD COLUMN messaging "
+                "ENUM('whatsapp','signal','telegram','none') NOT NULL DEFAULT 'none'"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
     print("Database tables created (or already exist).")

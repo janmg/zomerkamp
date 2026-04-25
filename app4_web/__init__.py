@@ -9,6 +9,22 @@ from flask import Flask
 from app4_web.routes import admin_bp, dashboard_bp, import_bp, operations_bp
 
 
+def _apply_migrations() -> None:
+    """Add new columns that may not exist in older deployments."""
+    from sqlalchemy import text
+    from models import get_engine
+    engine = get_engine()
+    with engine.connect() as conn:
+        try:
+            conn.execute(text(
+                "ALTER TABLE participants ADD COLUMN messaging "
+                "ENUM('whatsapp','signal','telegram','none') NOT NULL DEFAULT 'none'"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
+
+
 def create_app() -> Flask:
 	app = Flask(__name__, template_folder="templates")
 	app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "dev-zomerkamp-secret")
@@ -17,5 +33,7 @@ def create_app() -> Flask:
 	app.register_blueprint(import_bp)
 	app.register_blueprint(operations_bp)
 	app.register_blueprint(admin_bp)
+
+	_apply_migrations()
 
 	return app

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Participants - Zomerkamp Super Version{% endblock %}
+{% block content %}
+
+{% set whatsapp_svg %}
+<svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="WhatsApp">
+  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.851L.057 23.857a.5.5 0 00.603.602l6.098-1.527A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.875 9.875 0 01-5.031-1.373l-.36-.214-3.738.936.999-3.645-.235-.374A9.866 9.866 0 012.118 12C2.118 6.532 6.532 2.118 12 2.118c5.469 0 9.882 4.413 9.882 9.882 0 5.469-4.413 9.882-9.882 9.882z"/>
+</svg>
+{% endset %}
+
+{% set signal_svg %}
+<svg width="18" height="18" viewBox="0 0 24 24" fill="#3A76F0" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="Signal">
+  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.19 18.794l-.395-.102a7.765 7.765 0 01-1.534-.59l-.357-.19-3.705.972.99-3.616-.207-.35A7.72 7.72 0 014.22 12c0-4.29 3.49-7.78 7.78-7.78 4.29 0 7.78 3.49 7.78 7.78 0 4.272-3.464 7.751-7.59 7.794z"/>
+</svg>
+{% endset %}
+
+{% set telegram_svg %}
+<svg width="18" height="18" viewBox="0 0 24 24" fill="#2CA5E0" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="Telegram">
+  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.247l-2.01 9.47c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.19 14.078l-2.95-.924c-.64-.203-.653-.64.136-.948l11.52-4.44c.533-.194 1.001.13.666.481z"/>
+</svg>
+{% endset %}
+
+<style>
+  .participants-table { width: 100%; border-collapse: collapse; }
+  .participants-table th, .participants-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--line); }
+  .participants-table th { background: var(--bg); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .participants-table tr:last-child td { border-bottom: none; }
+  .participants-table tr:hover td { background: rgba(26,115,232,0.04); }
+  .phone-cell { display: flex; align-items: center; gap: 0.45rem; }
+  .messaging-form { display: flex; align-items: center; gap: 0.4rem; }
+  .messaging-select { padding: 0.25rem 0.4rem; border: 1px solid var(--line); border-radius: 6px; font-size: 0.85rem; background: var(--paper); cursor: pointer; }
+  .messaging-save { padding: 0.25rem 0.6rem; font-size: 0.8rem; border: none; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
+  .messaging-save:hover { background: var(--accent-deep); }
+  .saved-flash { font-size: 0.78rem; color: var(--secondary); display: none; }
+</style>
+
+<h2>Participants</h2>
+<p class="intro">Contact list with messaging preferences.</p>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <table class="participants-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Messaging app</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for person in people %}
+      <tr>
+        <td><strong>{{ person.name }}</strong></td>
+        <td>
+          <div class="phone-cell">
+            {% if person.messaging == "whatsapp" %}
+              {{ whatsapp_svg }}
+            {% elif person.messaging == "signal" %}
+              {{ signal_svg }}
+            {% elif person.messaging == "telegram" %}
+              {{ telegram_svg }}
+            {% endif %}
+            <span>{{ person.phone }}</span>
+          </div>
+        </td>
+        <td><a href="mailto:{{ person.email }}">{{ person.email }}</a></td>
+        <td>
+          <form method="post" class="messaging-form" data-person-id="{{ person.id }}">
+            <input type="hidden" name="participant_id" value="{{ person.id }}">
+            <select name="messaging" class="messaging-select">
+              {% for app in messaging_apps %}
+              <option value="{{ app }}"{% if app == person.messaging %} selected{% endif %}>{{ app | capitalize }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="messaging-save">Save</button>
+            <span class="saved-flash">Saved!</span>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll(".messaging-form").forEach(function (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const flash = form.querySelector(".saved-flash");
+      fetch("/participants", { method: "POST", body: new FormData(form) })
+        .then(function (r) {
+          if (r.ok) {
+            flash.style.display = "inline";
+            setTimeout(function () { flash.style.display = "none"; }, 2000);
+            // Update the phone logo inline
+            const row = form.closest("tr");
+            const phoneCell = row.querySelector(".phone-cell");
+            const selected = form.querySelector("select").value;
+            const logos = {
+              whatsapp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="WhatsApp"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.851L.057 23.857a.5.5 0 00.603.602l6.098-1.527A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.875 9.875 0 01-5.031-1.373l-.36-.214-3.738.936.999-3.645-.235-.374A9.866 9.866 0 012.118 12C2.118 6.532 6.532 2.118 12 2.118c5.469 0 9.882 4.413 9.882 9.882 0 5.469-4.413 9.882-9.882 9.882z"/></svg>',
+              signal: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#3A76F0" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="Signal"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.19 18.794l-.395-.102a7.765 7.765 0 01-1.534-.59l-.357-.19-3.705.972.99-3.616-.207-.35A7.72 7.72 0 014.22 12c0-4.29 3.49-7.78 7.78-7.78 4.29 0 7.78 3.49 7.78 7.78 0 4.272-3.464 7.751-7.59 7.794z"/></svg>',
+              telegram: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#2CA5E0" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; flex-shrink:0;" aria-label="Telegram"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.247l-2.01 9.47c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.19 14.078l-2.95-.924c-.64-.203-.653-.64.136-.948l11.52-4.44c.533-.194 1.001.13.666.481z"/></svg>',
+              none: ''
+            };
+            const existingLogo = phoneCell.querySelector("svg");
+            if (existingLogo) existingLogo.remove();
+            if (logos[selected]) {
+              phoneCell.insertAdjacentHTML("afterbegin", logos[selected]);
+            }
+          }
+        });
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -9,6 +9,8 @@ from flask import Blueprint, render_template, request
 from models import Participant, Task, get_session
 from roster_logic import compute_total_points
 
+MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
@@ -142,3 +144,34 @@ def master():
         session.close()
 
     return render_template("master.html", by_day=dict(sorted(by_day.items())))
+
+
+@dashboard_bp.route("/participants", methods=["GET", "POST"])
+def participants():
+    session = get_session()
+    try:
+        if request.method == "POST":
+            participant_id = request.form.get("participant_id", type=int)
+            messaging = request.form.get("messaging", "none")
+            if messaging not in MESSAGING_APPS:
+                messaging = "none"
+            if participant_id:
+                person = session.get(Participant, participant_id)
+                if person:
+                    person.messaging = messaging
+                    session.commit()
+
+        people = [
+            {
+                "id": p.id,
+                "name": p.name,
+                "email": p.email,
+                "phone": p.phone or "-",
+                "messaging": p.messaging if p.messaging else "none",
+            }
+            for p in sorted(session.query(Participant).all(), key=lambda p: p.name.lower())
+        ]
+    finally:
+        session.close()
+
+    return render_template("participants.html", people=people, messaging_apps=MESSAGING_APPS)
