@@ -1,179 +1,183 @@
 # Zomerkamp Task Roster
 
-A four-application Python system for fairly scheduling volunteers across a 4-day event. Data is stored in MariaDB via SQLAlchemy.
+Zomerkamp is a volunteer scheduling system for a 4-day event. It stores participants, tasks, assignments, and exceptions in MariaDB via SQLAlchemy, and exposes the workflow both through CLI entry points and a modular Flask web app.
+
+The main flows from the old app1-app3 scripts now also exist inside the web server:
+
+- app1: CSV import through `/import`
+- app2: scheduling and export operations through `/operations`
+- app3: admin overrides and assignment management through `/admin`
 
 ## Project Structure
 
 ```text
 zomerkamp/
-|- config.py               # Database credentials and event constants
-|- models.py               # SQLAlchemy ORM models and DB helpers
+|- config.py                    # Database credentials and event constants
+|- models.py                    # SQLAlchemy ORM models and DB helpers
+|- roster_logic.py              # Candidate ranking and scheduling helpers
 |- requirements.txt
 |
-|- app1_import.py          # CLI: import tasks and participants from CSV
-|- app2_schedule.py        # CLI: generate fair schedule, export CSV
-|- app3_admin.py           # CLI: admin and override management
+|- app1_import.py               # CLI entry point: CSV import
+|- app2_schedule.py             # CLI entry point: scheduler and export
+|- app3_admin.py                # CLI entry point: admin operations
 |
 |- app4_web/
-|  |- app.py               # Flask web application
-|  |- templates/
-|     |- base.html
-|     |- leaderboard.html
-|     |- schedule.html
-|     |- master.html
+|  |- __init__.py               # Flask app factory
+|  |- app.py                    # Flask startup entry point
+|  |- routes/
+|  |  |- dashboard.py           # Read-only dashboard pages
+|  |  |- imports.py             # Upload/import web flow
+|  |  |- operations.py          # Scheduling/export web flow
+|  |  |- admin.py               # Admin management web flow
+|  |
+|  |- services/
+|  |  |- import_service.py      # Shared import logic
+|  |  |- schedule_service.py    # Shared scheduling/export logic
+|  |  |- admin_service.py       # Shared admin logic
+|  |
+|  |- templates/                # Flask HTML templates
+|  |- static/                   # Static assets
 |
-|- sample_tasks.csv        # Example tasks CSV
-|- sample_participants.csv # Example participants CSV
+|- sample_tasks.csv             # Example tasks CSV
+|- sample_participants.csv      # Example participants CSV
+|- INSTALLATION.md              # Setup and run instructions
 ```
 
 ## Quick Start
 
-### 1. Database Setup (MariaDB)
+### 1. Install and configure
 
-```sql
-CREATE DATABASE zomerkamp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'zomerkamp_user'@'localhost' IDENTIFIED BY 'change_me';
-GRANT ALL PRIVILEGES ON zomerkamp.* TO 'zomerkamp_user'@'localhost';
-FLUSH PRIVILEGES;
-```
+Follow [INSTALLATION.md](INSTALLATION.md) for the full MariaDB and environment setup.
 
-Edit `config.py` to match your credentials.
-
-### 2. Python Environment
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Initialize Tables
+### 2. Create tables
 
 ```bash
 python app1_import.py --init-db
 ```
 
-## App 1: CSV Import (`app1_import.py`)
+### 3. Start the web app
 
-Reads two CSV files and upserts their data into the database. Re-running is safe: existing rows are updated, not duplicated.
+```bash
+python app4_web/app.py
+```
+
+Open `http://localhost:5000`.
+
+### 4. Load sample data
+
+You can either:
+
+- go to `/import` and upload `sample_tasks.csv` and `sample_participants.csv`
+- or use the CLI:
 
 ```bash
 python app1_import.py --tasks sample_tasks.csv --participants sample_participants.csv
 ```
 
-### `tasks.csv` Format
+### 5. Generate a schedule
+
+Either use `/operations` in the browser or run:
+
+```bash
+python app2_schedule.py schedule
+```
+
+## Web Interface
+
+The web app is now the main operational surface.
+
+| URL | Description |
+|---|---|
+| `/` | Dashboard with navigation and summary metrics |
+| `/import` | Initialize DB tables and upload tasks/participants CSV files |
+| `/operations` | Run the scheduler, refresh backups, export CSV files |
+| `/admin` | Manage unavailability, backups, leads, and assignments |
+| `/leaderboard` | Participants ranked by points earned |
+| `/schedule` | Per-participant schedule view |
+| `/master` | Master sheet across all days and tasks |
+
+## CLI Entry Points
+
+The CLI tools still work, but now call the same shared service layer used by the web app.
+
+### `app1_import.py`
+
+Imports task and participant CSV data.
+
+```bash
+python app1_import.py --init-db
+python app1_import.py --tasks sample_tasks.csv --participants sample_participants.csv
+```
+
+### `app2_schedule.py`
+
+Scheduler and export commands.
+
+```bash
+python app2_schedule.py schedule
+python app2_schedule.py schedule --keep-existing
+python app2_schedule.py show
+python app2_schedule.py export --output ./exports
+python app2_schedule.py backup
+```
+
+### `app3_admin.py`
+
+Admin and override commands.
+
+```bash
+python app3_admin.py list-people
+python app3_admin.py list-tasks --day 2
+python app3_admin.py list-unavailable
+python app3_admin.py set-unavailable --person "Alice" --day 2 --reason "Unavailable"
+python app3_admin.py confirm-backup --task 5
+python app3_admin.py set-lead --task 5 --person "Grace"
+python app3_admin.py remove-assignment --task 5 --person "Bob"
+```
+
+## CSV Formats
+
+### `tasks.csv`
 
 | Column | Description |
 |---|---|
 | `task_name` | Name of the task |
 | `day` | Day number (1-4) |
-| `begin_time` | Start time (`HH:MM`) |
-| `end_time` | End time (`HH:MM`) |
+| `begin_time` | Start time (`HH:MM` or `HH:MM:SS`) |
+| `end_time` | End time (`HH:MM` or `HH:MM:SS`) |
 | `points` | Points earned for doing this task |
 | `people_required` | Number of volunteers needed |
 
-The time block (`morning`, `afternoon`, `evening`) is derived automatically from the midpoint of begin/end time.
+The system derives the time block (`morning`, `afternoon`, `evening`) automatically from the task midpoint.
 
-### `participants.csv` Format
+### `participants.csv`
 
 | Column | Description |
 |---|---|
 | `name` | Full name |
 | `email` | Email address (unique key) |
 | `phone` | Phone number (optional) |
+| `remarks` | Free text notes (optional) |
 | `day1_morning` ... `day4_evening` | `TRUE` / `FALSE` availability per block |
 | `preference` | One of: `serving snacks`, `serving food`, `cleaning after food`, `cleaning toilets`, `organize afternoon games`, `do not care` |
 
-## App 2: Scheduler (`app2_schedule.py`)
-
-### Subcommands
-
-| Command | Description |
-|---|---|
-| `schedule` | Clear assignments and run the fair-scheduling algorithm |
-| `schedule --keep-existing` | Schedule only unassigned tasks |
-| `show` | Print current schedule to the terminal |
-| `export --output DIR` | Write three CSV files to `DIR` |
-| `backup` | Refresh the backup person for every task |
-
-```bash
-python app2_schedule.py schedule
-python app2_schedule.py show
-python app2_schedule.py export --output ./exports
-python app2_schedule.py backup
-```
-
-### Scheduling Algorithm
+## Scheduling Rules
 
 1. Tasks are processed in day/time order.
-2. For each task, eligible candidates are people who:
-   - are available in that day + time block
-   - have no `Unavailability` record blocking them
-3. Candidates are ranked by lowest projected total points after assignment, with preference match used as a tie-breaker.
-4. The first candidate becomes the lead (earns points); the rest are helpers (earn points).
-5. One additional eligible person is assigned as backup (earns no points).
+2. Eligible candidates must be available for the task's day and time block.
+3. Unavailability rules are respected for all-days, per-day, and per-task exclusions.
+4. Candidates are ranked by fairness first: lowest projected total points wins.
+5. Preference matching is used as a tie-breaker.
+6. The first active assignee becomes `lead`; remaining required people become `helper`.
+7. One additional eligible participant is selected as `backup` when possible.
 
-### Export CSVs
+## Export Output
 
-Three files are written with a timestamp in the filename:
+The export flow writes three timestamped CSV files:
 
-- `schedule_<ts>.csv`: one row per assignment (all tasks x all people)
-- `points_<ts>.csv`: leaderboard sorted by points
-- `per_person_<ts>.csv`: alphabetical list of people with their tasks
-
-## App 3: Admin (`app3_admin.py`)
-
-### Subcommands
-
-```bash
-# List all participants with accumulated points
-python app3_admin.py list-people
-
-# List all tasks (optionally filter by day)
-python app3_admin.py list-tasks
-python app3_admin.py list-tasks --day 2
-
-# Show unavailability records with IDs
-python app3_admin.py list-unavailable
-
-# Mark unavailable for a specific task
-python app3_admin.py set-unavailable --person "Alice" --task 7
-
-# Mark unavailable for an entire day
-python app3_admin.py set-unavailable --person "Bob" --day 3
-
-# Mark unavailable for all days
-python app3_admin.py set-unavailable --person "Charlie" --all-days
-
-# Remove an unavailability record (use list-unavailable to find the UID)
-python app3_admin.py remove-unavailable --id 4
-
-# Promote backup to helper (awards points) and select a new backup
-python app3_admin.py confirm-backup --task 7
-
-# Manually set the lead for a task
-python app3_admin.py set-lead --task 7 --person "Grace"
-
-# Remove a person from a task; auto-promotes lead and refreshes backup
-python app3_admin.py remove-assignment --task 7 --person "Bob"
-```
-
-When a person is set unavailable, their assignments in the affected scope are removed and backups are refreshed automatically.
-
-## App 4: Web (`app4_web/app.py`)
-
-```bash
-cd app4_web
-python app.py
-# http://localhost:5000
-```
-
-### Routes
-
-| URL | Description |
-|---|---|
-| `/` | Redirects to `/leaderboard` |
-| `/leaderboard` | Participants ranked by points earned |
-| `/schedule` | All participants (A-Z) with their task assignments and points |
-| `/master` | Master sheet: all activities by day/time with lead, helpers, backup, and contact details |
+- `schedule_<ts>.csv`: one row per assignment
+- `points_<ts>.csv`: leaderboard by total points
+- `per_person_<ts>.csv`: assignments grouped by participant
 
 ## Data Model Overview
 
@@ -211,3 +215,9 @@ python app.py
 - `lead`: first person assigned, earns points
 - `helper`: additional required people, earn points
 - `backup`: standby person, earns no points until confirmed via `confirm-backup`
+
+## Architecture Notes
+
+- `app4_web/services/` contains the shared business logic used by both web routes and CLI scripts.
+- `app4_web/routes/` keeps Flask routes grouped by feature instead of putting all views in one file.
+- The CLI remains useful for scripting, while the browser now supports the same operational workflows.

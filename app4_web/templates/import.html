@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Import CSV - Zomerkamp Super Version{% endblock %}
+{% block content %}
+<h2>Import Data</h2>
+<p class="intro">Upload tasks and participants CSV files directly in the web app (app1 flow).</p>
+
+<div class="stack">
+  <form method="post">
+    <input type="hidden" name="action" value="init-db">
+    <button type="submit">Initialize Database Tables</button>
+  </form>
+
+  <form method="post" enctype="multipart/form-data" class="stack">
+    <input type="hidden" name="action" value="upload">
+
+    <div class="form-grid">
+      <div>
+        <label for="tasks_csv">Tasks CSV</label>
+        <input id="tasks_csv" name="tasks_csv" type="file" accept=".csv">
+      </div>
+      <div>
+        <label for="participants_csv">Participants CSV</label>
+        <input id="participants_csv" name="participants_csv" type="file" accept=".csv">
+      </div>
+    </div>
+
+    <div>
+      <button type="submit">Upload CSV Files</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

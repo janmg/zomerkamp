@@ -232,6 +232,87 @@
       line-height: 1.5;
     }
 
+    .stack > * + * {
+      margin-top: 0.85rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 0.55rem 0.65rem;
+      background: #fff;
+    }
+
+    button {
+      border: 1px solid rgba(20, 87, 173, 0.35);
+      background: #e9f2ff;
+      color: var(--accent-deep);
+      border-radius: 999px;
+      padding: 0.55rem 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #dcecff;
+    }
+
+    .flash-list {
+      list-style: none;
+      margin-bottom: 1rem;
+      padding: 0;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .flash {
+      border: 1px solid var(--line);
+      border-left-width: 4px;
+      border-radius: 10px;
+      background: #fff;
+      padding: 0.7rem 0.8rem;
+    }
+
+    .flash-success {
+      border-left-color: #0f9d58;
+    }
+
+    .flash-warning {
+      border-left-color: #f39c12;
+    }
+
+    .flash-error {
+      border-left-color: #cc2f2f;
+    }
+
+    .flash-info {
+      border-left-color: #1a73e8;
+    }
+
     .person-card,
     .day-block {
       background: #ffffff;
@@ -380,6 +461,9 @@
       </div>
       <nav>
         <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Home</a>
+        <a href="/import" {% if request.path == '/import' %}class="active"{% endif %}>Import CSV</a>
+        <a href="/operations" {% if request.path == '/operations' %}class="active"{% endif %}>Operations</a>
+        <a href="/admin" {% if request.path == '/admin' %}class="active"{% endif %}>Admin</a>
         <a href="/leaderboard" {% if request.path == '/leaderboard' %}class="active"{% endif %}>Leaderboard</a>
         <a href="/schedule" {% if request.path == '/schedule' %}class="active"{% endif %}>Schedule</a>
         <a href="/master" {% if request.path == '/master' %}class="active"{% endif %}>Master Sheet</a>
@@ -388,6 +472,15 @@
   </header>
   <main>
     <section class="panel">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flash-list">
+          {% for category, message in messages %}
+          <li class="flash flash-{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      {% endwith %}
       {% block content %}{% endblock %}
     </section>
   </main>

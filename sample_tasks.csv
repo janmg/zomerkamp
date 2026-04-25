@@ -6,7 +6,7 @@ Serving lunch,1,12:30,14:00,8,3
 Afternoon activities,1,14:00,16:00,12,5
 Cleaning after lunch,1,14:00,16:00,5,3
 Preparing dinner,1,16:00,18:00,10,2
-Serving dinner,1,18:00,19:30,8,3
+Serving dinner,1,18:00,19:30,11,3
 Evening entertainment setup,1,19:30,20:30,6,2
 Serving snacks and drinks,2,09:00,11:00,7,3
 Cleaning toilets,2,11:00,12:30,4,2
@@ -14,7 +14,7 @@ Organizing games,2,13:00,15:00,12,3
 Afternoon food prep,2,15:00,17:00,10,2
 Serving afternoon snacks,2,17:00,18:00,6,2
 Dinner preparation,2,18:00,19:30,10,3
-Serving dinner,2,19:30,21:00,8,3
+Serving dinner,2,19:30,21:00,11,3
 Cleanup evening,2,21:00,22:30,6,4
 Morning cleaning,3,08:00,09:00,4,2
 Serving breakfast,3,09:00,10:30,8,2
@@ -24,7 +24,7 @@ Afternoon workshop setup,3,14:00,15:00,6,2
 Afternoon workshop,3,15:00,17:00,12,4
 Snack service,3,17:00,18:00,6,2
 Dinner preparation,3,18:00,19:30,10,2
-Serving dinner,3,19:30,20:30,8,3
+Serving dinner,3,19:30,20:30,11,3
 Staff meeting,3,20:30,21:30,3,6
 Final day preparations,4,08:00,09:30,5,2
 Breakfast service,4,09:30,11:00,8,2
