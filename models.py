@@ -9,7 +9,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
 
 from config import DATABASE_URL, PREFERENCES, TIME_BLOCKS
 
-MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+MESSAGING_APPS = ["whatsapp", "signal", "telegram", "sms", "none"]
 GROUPS = ["1", "2", "3a", "3b", "4", "5", "6+7", "8"]
 
 

@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, request
 from models import Participant, Task, get_session
 from roster_logic import compute_total_points
 
-MESSAGING_APPS = ["whatsapp", "signal", "telegram", "none"]
+MESSAGING_APPS = ["whatsapp", "signal", "telegram", "sms", "none"]
 GROUPS = ["1", "2", "3a", "3b", "4", "5", "6+7", "8"]
 
 dashboard_bp = Blueprint("dashboard", __name__)
