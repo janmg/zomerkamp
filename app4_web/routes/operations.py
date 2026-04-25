@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, redirect, render_template, request, url_for
 
 from models import Participant, Task, get_session
-from app4_web.services.schedule_service import export_csv, refresh_backups, run_schedule
+from app4_web.services.schedule_service import (
+    export_csv,
+    generate_per_person_csv,
+    generate_points_csv,
+    generate_schedule_csv,
+    refresh_backups,
+    run_schedule,
+)
 
 operations_bp = Blueprint("operations", __name__)
 
@@ -42,3 +49,39 @@ def operations():
         session.close()
 
     return render_template("operations.html", summary=summary)
+
+
+def _csv_response(filename: str, content: str) -> Response:
+    response = Response(content, mimetype="text/csv")
+    response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+@operations_bp.route("/operations/download/schedule")
+def download_schedule():
+    session = get_session()
+    try:
+        filename, content = generate_schedule_csv(session)
+    finally:
+        session.close()
+    return _csv_response(filename, content)
+
+
+@operations_bp.route("/operations/download/points")
+def download_points():
+    session = get_session()
+    try:
+        filename, content = generate_points_csv(session)
+    finally:
+        session.close()
+    return _csv_response(filename, content)
+
+
+@operations_bp.route("/operations/download/per-person")
+def download_per_person():
+    session = get_session()
+    try:
+        filename, content = generate_per_person_csv(session)
+    finally:
+        session.close()
+    return _csv_response(filename, content)

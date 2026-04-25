@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import io
 from datetime import datetime
 from pathlib import Path
 
@@ -183,3 +184,51 @@ def export_csv(session, output_dir: str) -> dict[str, str]:
         "points": str(points_path),
         "per_person": str(per_person_path),
     }
+
+
+def generate_schedule_csv(session) -> tuple[str, str]:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    tasks = session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all()
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["day", "begin_time", "end_time", "task", "block", "points", "role", "participant", "email"])
+    for task in tasks:
+        for assignment in sorted(task.assignments, key=lambda a: (a.role, a.participant.name.lower())):
+            writer.writerow([
+                task.day, task.begin_time.strftime("%H:%M"), task.end_time.strftime("%H:%M"),
+                task.name, task.time_block, task.points,
+                assignment.role, assignment.participant.name, assignment.participant.email,
+            ])
+    return f"schedule_{timestamp}.csv", buf.getvalue()
+
+
+def generate_points_csv(session) -> tuple[str, str]:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    totals = compute_total_points(session)
+    participants = sorted(session.query(Participant).all(), key=lambda p: totals.get(p.id, 0), reverse=True)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["rank", "name", "email", "phone", "preference", "points"])
+    for rank, participant in enumerate(participants, start=1):
+        writer.writerow([rank, participant.name, participant.email, participant.phone or "", participant.preference, totals.get(participant.id, 0)])
+    return f"points_{timestamp}.csv", buf.getvalue()
+
+
+def generate_per_person_csv(session) -> tuple[str, str]:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    totals = compute_total_points(session)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["name", "email", "phone", "remarks", "day", "begin_time", "end_time", "task", "role", "points_awarded"])
+    for participant in sorted(session.query(Participant).all(), key=lambda p: p.name.lower()):
+        assignments = sorted(participant.assignments, key=lambda a: (a.task.day, a.task.begin_time, a.task.name))
+        if not assignments:
+            writer.writerow([participant.name, participant.email, participant.phone or "", participant.remarks or "", "", "", "", "", "", totals.get(participant.id, 0)])
+            continue
+        for assignment in assignments:
+            writer.writerow([
+                participant.name, participant.email, participant.phone or "", participant.remarks or "",
+                assignment.task.day, assignment.task.begin_time.strftime("%H:%M"), assignment.task.end_time.strftime("%H:%M"),
+                assignment.task.name, assignment.role, assignment.points_awarded,
+            ])
+    return f"per_person_{timestamp}.csv", buf.getvalue()

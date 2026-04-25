@@ -45,15 +45,12 @@
 
   <div class="card" style="min-height: 0;">
     <h3>Export CSV</h3>
-    <p>Write schedule, points, and per-person exports.</p>
-    <form method="post" class="stack" style="margin-top: 0.8rem;">
-      <input type="hidden" name="action" value="export-csv">
-      <div>
-        <label for="output_dir">Output Directory</label>
-        <input id="output_dir" name="output_dir" value="./exports">
-      </div>
-      <div><button type="submit">Export Files</button></div>
-    </form>
+    <p>Download schedule, points, and per-person exports as CSV files.</p>
+    <div class="stack" style="margin-top: 0.8rem;">
+      <a href="/operations/download/schedule"><button type="button">Download Schedule</button></a>
+      <a href="/operations/download/points"><button type="button">Download Points</button></a>
+      <a href="/operations/download/per-person"><button type="button">Download Per Person</button></a>
+    </div>
   </div>
 </div>
 {% endblock %}

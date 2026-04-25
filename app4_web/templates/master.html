@@ -41,7 +41,7 @@
         <td>
           {% if task.lead %}
             <div><a href="/schedule?name={{ task.lead.participant.name|urlencode }}">{{ task.lead.participant.name }}</a></div>
-            <div class="quiet">{{ task.lead.participant.email }}</div>
+            {% if task.lead.participant.phone %}<div class="quiet">{{ task.lead.participant.phone }}</div>{% endif %}
           {% else %}
             <span class="quiet">-</span>
           {% endif %}
@@ -49,7 +49,7 @@
         <td>
           {% if task.helpers %}
             {% for helper in task.helpers %}
-            <div>{{ helper.participant.name }}</div>
+            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ helper.participant.phone }}</span>{% endif %}</div>
             {% endfor %}
           {% else %}
             <span class="quiet">-</span>

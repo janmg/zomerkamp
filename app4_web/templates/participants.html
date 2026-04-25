@@ -5,7 +5,7 @@
 
 <style>
   .participants-table { width: 100%; border-collapse: collapse; }
-  .participants-table th, .participants-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--line); }
+  .participants-table th, .participants-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
   .participants-table th { background: var(--bg); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
   .participants-table tr:last-child td { border-bottom: none; }
   .participants-table tr:hover td { background: rgba(26,115,232,0.04); }
@@ -15,6 +15,10 @@
   .messaging-save { padding: 0.25rem 0.6rem; font-size: 0.8rem; border: none; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
   .messaging-save:hover { background: var(--accent-deep); }
   .saved-flash { font-size: 0.78rem; color: var(--secondary); display: none; }
+  .group-balls { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .group-ball { min-width: 1.9rem; height: 1.7rem; border-radius: 999px; padding: 0 0.45rem; border: none; cursor: pointer; font-size: 0.72rem; font-weight: 700; background: var(--line); color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; user-select: none; }
+  .group-ball.active { background: var(--accent); color: #fff; }
+  .group-ball:hover:not(.active) { background: rgba(26,115,232,0.18); color: var(--text); }
 </style>
 
 <h2>Participants</h2>
@@ -36,12 +40,11 @@
       <tr>
         <td><strong>{{ person.name }}</strong></td>
         <td>
-          <select name="group" class="messaging-select group-select" data-person-id="{{ person.id }}" style="min-width: 4.5rem;">
-            <option value="">-</option>
+          <div class="group-balls" data-person-id="{{ person.id }}">
             {% for g in groups %}
-            <option value="{{ g }}"{% if g == person.group %} selected{% endif %}>{{ g }}</option>
+            <button type="button" class="group-ball{% if g == person.group %} active{% endif %}" data-group="{{ g }}">{{ g }}</button>
             {% endfor %}
-          </select>
+          </div>
         </td>
         <td>
           <div class="phone-cell">
@@ -71,13 +74,24 @@
 
 <script>
 (function () {
-  // Keep group hidden inputs in sync with the standalone group selects
-  document.querySelectorAll(".group-select").forEach(function (sel) {
-    const personId = sel.dataset.personId;
+  // Group balls: toggle selection, sync to hidden group input in messaging form
+  document.querySelectorAll(".group-balls").forEach(function (container) {
+    const personId = container.dataset.personId;
     const form = document.querySelector(".messaging-form[data-person-id='" + personId + "']");
-    if (!form) return;
-    sel.addEventListener("change", function () {
-      form.querySelector(".group-hidden").value = sel.value;
+    const hiddenGroup = form ? form.querySelector(".group-hidden") : null;
+
+    container.querySelectorAll(".group-ball").forEach(function (ball) {
+      ball.addEventListener("click", function () {
+        const isActive = ball.classList.contains("active");
+        // Deselect all
+        container.querySelectorAll(".group-ball").forEach(function (b) { b.classList.remove("active"); });
+        if (!isActive) {
+          ball.classList.add("active");
+        }
+        if (hiddenGroup) {
+          hiddenGroup.value = isActive ? "" : ball.dataset.group;
+        }
+      });
     });
   });
 
