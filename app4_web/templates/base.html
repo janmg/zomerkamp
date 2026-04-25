@@ -31,8 +31,19 @@
       min-height: 100vh;
       font-family: "Roboto", Arial, sans-serif;
       color: var(--ink);
-      background: linear-gradient(180deg, #fdfdfd 0 180px, var(--bg) 180px 100%);
+      background: var(--bg);
       position: relative;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 180px;
+      background: #fdfdfd;
+      z-index: -1;
     }
 
     body::before {
