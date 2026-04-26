@@ -1,0 +1,134 @@
+day,begin_time,end_time,task,block,points,role,participant,email
+1,08:00,09:30,Setup tables and chairs,morning,5,backup,Bob Smith,bob@example.com
+1,08:00,09:30,Setup tables and chairs,morning,5,helper,Alice Johnson,alice@example.com
+1,08:00,09:30,Setup tables and chairs,morning,5,helper,Liam O'Brien,liam@example.com
+1,08:00,09:30,Setup tables and chairs,morning,5,lead,Frank Miller,frank@example.com
+1,09:30,11:00,Serving breakfast,morning,8,backup,Eve Wilson,eve@example.com
+1,09:30,11:00,Serving breakfast,morning,8,helper,Diana Prince,diana@example.com
+1,09:30,11:00,Serving breakfast,morning,8,lead,Bob Smith,bob@example.com
+1,11:00,12:30,Morning games,morning,10,backup,Frank Miller,frank@example.com
+1,11:00,12:30,Morning games,morning,10,helper,Eve Wilson,eve@example.com
+1,11:00,12:30,Morning games,morning,10,helper,Henry Davis,henry@example.com
+1,11:00,12:30,Morning games,morning,10,helper,Kate Murphy,kate@example.com
+1,11:00,12:30,Morning games,morning,10,lead,Ivy Chen,ivy@example.com
+1,12:30,14:00,Serving lunch,afternoon,8,backup,Alice Johnson,alice@example.com
+1,12:30,14:00,Serving lunch,afternoon,8,helper,Charlie Brown,charlie@example.com
+1,12:30,14:00,Serving lunch,afternoon,8,helper,Grace Lee,grace@example.com
+1,12:30,14:00,Serving lunch,afternoon,8,lead,Jack Robinson,jack@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,backup,Grace Lee,grace@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,helper,Alice Johnson,alice@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,helper,Bob Smith,bob@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,helper,Charlie Brown,charlie@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,helper,Diana Prince,diana@example.com
+1,14:00,16:00,Afternoon activities,afternoon,12,lead,Frank Miller,frank@example.com
+1,14:00,16:00,Cleaning after lunch,afternoon,5,backup,Ivy Chen,ivy@example.com
+1,14:00,16:00,Cleaning after lunch,afternoon,5,helper,Henry Davis,henry@example.com
+1,14:00,16:00,Cleaning after lunch,afternoon,5,helper,Kate Murphy,kate@example.com
+1,14:00,16:00,Cleaning after lunch,afternoon,5,lead,Jack Robinson,jack@example.com
+1,16:00,18:00,Preparing dinner,evening,10,backup,Eve Wilson,eve@example.com
+1,16:00,18:00,Preparing dinner,evening,10,helper,Grace Lee,grace@example.com
+1,16:00,18:00,Preparing dinner,evening,10,lead,Liam O'Brien,liam@example.com
+1,18:00,19:30,Serving dinner,evening,8,backup,Liam O'Brien,liam@example.com
+1,18:00,19:30,Serving dinner,evening,8,helper,Ivy Chen,ivy@example.com
+1,18:00,19:30,Serving dinner,evening,8,helper,Jack Robinson,jack@example.com
+1,18:00,19:30,Serving dinner,evening,8,lead,Eve Wilson,eve@example.com
+1,19:30,20:30,Evening entertainment setup,evening,6,backup,Frank Miller,frank@example.com
+1,19:30,20:30,Evening entertainment setup,evening,6,helper,Kate Murphy,kate@example.com
+1,19:30,20:30,Evening entertainment setup,evening,6,lead,Liam O'Brien,liam@example.com
+2,09:00,11:00,Serving snacks and drinks,morning,7,backup,Grace Lee,grace@example.com
+2,09:00,11:00,Serving snacks and drinks,morning,7,helper,Alice Johnson,alice@example.com
+2,09:00,11:00,Serving snacks and drinks,morning,7,helper,Frank Miller,frank@example.com
+2,09:00,11:00,Serving snacks and drinks,morning,7,lead,Henry Davis,henry@example.com
+2,11:00,12:30,Cleaning toilets,morning,4,backup,Ivy Chen,ivy@example.com
+2,11:00,12:30,Cleaning toilets,morning,4,helper,Grace Lee,grace@example.com
+2,11:00,12:30,Cleaning toilets,morning,4,lead,Eve Wilson,eve@example.com
+2,13:00,15:00,Organizing games,afternoon,12,backup,Kate Murphy,kate@example.com
+2,13:00,15:00,Organizing games,afternoon,12,helper,Diana Prince,diana@example.com
+2,13:00,15:00,Organizing games,afternoon,12,helper,Jack Robinson,jack@example.com
+2,13:00,15:00,Organizing games,afternoon,12,lead,Charlie Brown,charlie@example.com
+2,15:00,17:00,Afternoon food prep,afternoon,10,backup,Grace Lee,grace@example.com
+2,15:00,17:00,Afternoon food prep,afternoon,10,helper,Eve Wilson,eve@example.com
+2,15:00,17:00,Afternoon food prep,afternoon,10,lead,Kate Murphy,kate@example.com
+2,17:00,18:00,Serving afternoon snacks,evening,6,backup,Liam O'Brien,liam@example.com
+2,17:00,18:00,Serving afternoon snacks,evening,6,helper,Bob Smith,bob@example.com
+2,17:00,18:00,Serving afternoon snacks,evening,6,lead,Ivy Chen,ivy@example.com
+2,18:00,19:30,Dinner preparation,evening,10,backup,Ivy Chen,ivy@example.com
+2,18:00,19:30,Dinner preparation,evening,10,helper,Grace Lee,grace@example.com
+2,18:00,19:30,Dinner preparation,evening,10,helper,Henry Davis,henry@example.com
+2,18:00,19:30,Dinner preparation,evening,10,lead,Liam O'Brien,liam@example.com
+2,19:30,21:00,Serving dinner,evening,8,backup,Kate Murphy,kate@example.com
+2,19:30,21:00,Serving dinner,evening,8,helper,Bob Smith,bob@example.com
+2,19:30,21:00,Serving dinner,evening,8,helper,Liam O'Brien,liam@example.com
+2,19:30,21:00,Serving dinner,evening,8,lead,Ivy Chen,ivy@example.com
+2,21:00,22:30,Cleanup evening,evening,6,backup,Grace Lee,grace@example.com
+2,21:00,22:30,Cleanup evening,evening,6,helper,Charlie Brown,charlie@example.com
+2,21:00,22:30,Cleanup evening,evening,6,helper,Diana Prince,diana@example.com
+2,21:00,22:30,Cleanup evening,evening,6,helper,Eve Wilson,eve@example.com
+2,21:00,22:30,Cleanup evening,evening,6,lead,Kate Murphy,kate@example.com
+3,08:00,09:00,Morning cleaning,morning,4,backup,Henry Davis,henry@example.com
+3,08:00,09:00,Morning cleaning,morning,4,helper,Alice Johnson,alice@example.com
+3,08:00,09:00,Morning cleaning,morning,4,lead,Frank Miller,frank@example.com
+3,09:00,10:30,Serving breakfast,morning,8,backup,Henry Davis,henry@example.com
+3,09:00,10:30,Serving breakfast,morning,8,helper,Frank Miller,frank@example.com
+3,09:00,10:30,Serving breakfast,morning,8,lead,Alice Johnson,alice@example.com
+3,10:30,12:30,Activity facilitation,morning,12,backup,Alice Johnson,alice@example.com
+3,10:30,12:30,Activity facilitation,morning,12,helper,Frank Miller,frank@example.com
+3,10:30,12:30,Activity facilitation,morning,12,helper,Henry Davis,henry@example.com
+3,10:30,12:30,Activity facilitation,morning,12,lead,Ivy Chen,ivy@example.com
+3,12:30,14:00,Lunch setup and serving,afternoon,8,backup,Kate Murphy,kate@example.com
+3,12:30,14:00,Lunch setup and serving,afternoon,8,helper,Alice Johnson,alice@example.com
+3,12:30,14:00,Lunch setup and serving,afternoon,8,helper,Jack Robinson,jack@example.com
+3,12:30,14:00,Lunch setup and serving,afternoon,8,lead,Grace Lee,grace@example.com
+3,14:00,15:00,Afternoon workshop setup,afternoon,6,backup,Diana Prince,diana@example.com
+3,14:00,15:00,Afternoon workshop setup,afternoon,6,helper,Charlie Brown,charlie@example.com
+3,14:00,15:00,Afternoon workshop setup,afternoon,6,lead,Kate Murphy,kate@example.com
+3,15:00,17:00,Afternoon workshop,afternoon,12,backup,Kate Murphy,kate@example.com
+3,15:00,17:00,Afternoon workshop,afternoon,12,helper,Grace Lee,grace@example.com
+3,15:00,17:00,Afternoon workshop,afternoon,12,helper,Jack Robinson,jack@example.com
+3,15:00,17:00,Afternoon workshop,afternoon,12,helper,Liam O'Brien,liam@example.com
+3,15:00,17:00,Afternoon workshop,afternoon,12,lead,Diana Prince,diana@example.com
+3,17:00,18:00,Snack service,evening,6,backup,Ivy Chen,ivy@example.com
+3,17:00,18:00,Snack service,evening,6,helper,Alice Johnson,alice@example.com
+3,17:00,18:00,Snack service,evening,6,lead,Eve Wilson,eve@example.com
+3,18:00,19:30,Dinner preparation,evening,10,backup,Frank Miller,frank@example.com
+3,18:00,19:30,Dinner preparation,evening,10,helper,Ivy Chen,ivy@example.com
+3,18:00,19:30,Dinner preparation,evening,10,lead,Eve Wilson,eve@example.com
+3,19:30,20:30,Serving dinner,evening,8,backup,Liam O'Brien,liam@example.com
+3,19:30,20:30,Serving dinner,evening,8,helper,Alice Johnson,alice@example.com
+3,19:30,20:30,Serving dinner,evening,8,helper,Diana Prince,diana@example.com
+3,19:30,20:30,Serving dinner,evening,8,lead,Frank Miller,frank@example.com
+3,20:30,21:30,Staff meeting,evening,3,backup,Alice Johnson,alice@example.com
+3,20:30,21:30,Staff meeting,evening,3,helper,Eve Wilson,eve@example.com
+3,20:30,21:30,Staff meeting,evening,3,helper,Frank Miller,frank@example.com
+3,20:30,21:30,Staff meeting,evening,3,helper,Grace Lee,grace@example.com
+3,20:30,21:30,Staff meeting,evening,3,helper,Ivy Chen,ivy@example.com
+3,20:30,21:30,Staff meeting,evening,3,helper,Jack Robinson,jack@example.com
+3,20:30,21:30,Staff meeting,evening,3,lead,Liam O'Brien,liam@example.com
+4,08:00,09:30,Final day preparations,morning,5,backup,Liam O'Brien,liam@example.com
+4,08:00,09:30,Final day preparations,morning,5,helper,Henry Davis,henry@example.com
+4,08:00,09:30,Final day preparations,morning,5,lead,Bob Smith,bob@example.com
+4,09:30,11:00,Breakfast service,morning,8,backup,Liam O'Brien,liam@example.com
+4,09:30,11:00,Breakfast service,morning,8,helper,Henry Davis,henry@example.com
+4,09:30,11:00,Breakfast service,morning,8,lead,Bob Smith,bob@example.com
+4,11:00,13:00,Closing activities,afternoon,15,backup,Jack Robinson,jack@example.com
+4,11:00,13:00,Closing activities,afternoon,15,helper,Bob Smith,bob@example.com
+4,11:00,13:00,Closing activities,afternoon,15,helper,Charlie Brown,charlie@example.com
+4,11:00,13:00,Closing activities,afternoon,15,helper,Grace Lee,grace@example.com
+4,11:00,13:00,Closing activities,afternoon,15,helper,Liam O'Brien,liam@example.com
+4,11:00,13:00,Closing activities,afternoon,15,lead,Kate Murphy,kate@example.com
+4,13:00,14:30,Lunch and farewell,afternoon,8,backup,Alice Johnson,alice@example.com
+4,13:00,14:30,Lunch and farewell,afternoon,8,helper,Eve Wilson,eve@example.com
+4,13:00,14:30,Lunch and farewell,afternoon,8,helper,Ivy Chen,ivy@example.com
+4,13:00,14:30,Lunch and farewell,afternoon,8,lead,Jack Robinson,jack@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,backup,Jack Robinson,jack@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,helper,Alice Johnson,alice@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,helper,Bob Smith,bob@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,helper,Charlie Brown,charlie@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,helper,Diana Prince,diana@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,helper,Frank Miller,frank@example.com
+4,14:30,17:00,Pack and cleanup,afternoon,10,lead,Kate Murphy,kate@example.com
+4,17:00,18:30,Final cleanup,evening,8,backup,Frank Miller,frank@example.com
+4,17:00,18:30,Final cleanup,evening,8,helper,Eve Wilson,eve@example.com
+4,17:00,18:30,Final cleanup,evening,8,helper,Ivy Chen,ivy@example.com
+4,17:00,18:30,Final cleanup,evening,8,helper,Kate Murphy,kate@example.com
+4,17:00,18:30,Final cleanup,evening,8,lead,Henry Davis,henry@example.com

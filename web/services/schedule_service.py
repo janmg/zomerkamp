@@ -4,8 +4,13 @@ from __future__ import annotations
 
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+try:
+    from zoneinfo import ZoneInfo
+    _EEST = ZoneInfo("Europe/Helsinki")
+except Exception:
+    _EEST = timezone(timedelta(hours=3))  # UTC+3 fallback (Helsinki summer time)
 
 from models import Assignment, Participant, Task
 from roster_logic import compute_total_points, eligible_candidates
@@ -27,23 +32,11 @@ def ensure_single_lead(session, task: Task) -> None:
     active_assignments[0].role = "lead"
 
 
-def refresh_backup_for_task(session, task: Task) -> None:
+def remove_backup_assignments_for_task(session, task: Task) -> None:
     for assignment in list(task.assignments):
         if assignment.role == "backup":
             session.delete(assignment)
     session.flush()
-
-    assigned_ids = {assignment.participant_id for assignment in task.assignments if assignment.role in {"lead", "helper"}}
-    candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
-    if candidates:
-        session.add(
-            Assignment(
-                task_id=task.id,
-                participant_id=candidates[0].id,
-                role="backup",
-                points_awarded=0,
-            )
-        )
 
 
 def run_schedule(session, keep_existing: bool = False) -> list[str]:
@@ -61,6 +54,7 @@ def run_schedule(session, keep_existing: bool = False) -> list[str]:
 
     messages.append(f"Scheduling {len(tasks)} task(s) across {len(participants)} participant(s).")
     for task in tasks:
+        remove_backup_assignments_for_task(session, task)
         active_assignments = [assignment for assignment in task.assignments if assignment.role in {"lead", "helper"}]
         assigned_ids = {assignment.participant_id for assignment in task.assignments}
         open_slots = task.people_required - len(active_assignments)
@@ -90,15 +84,14 @@ def run_schedule(session, keep_existing: bool = False) -> list[str]:
                 assigned_ids.add(participant.id)
                 lead_exists = True
 
+        remove_backup_assignments_for_task(session, task)
         ensure_single_lead(session, task)
-        refresh_backup_for_task(session, task)
         session.commit()
 
         refreshed = session.get(Task, task.id)
         lead = next((assignment.participant.name for assignment in refreshed.assignments if assignment.role == "lead"), "-")
         helpers = [assignment.participant.name for assignment in refreshed.assignments if assignment.role == "helper"]
-        backup = next((assignment.participant.name for assignment in refreshed.assignments if assignment.role == "backup"), "-")
-        messages.append(f"Task '{refreshed.name}' day {refreshed.day}: lead={lead}, helpers={helpers or '-'}, reserve={backup}")
+        messages.append(f"Task '{refreshed.name}' day {refreshed.day}: lead={lead}, helpers={helpers or '-'}")
 
     messages.append("Schedule generated successfully.")
     return messages
@@ -108,21 +101,17 @@ def refresh_backups(session) -> list[str]:
     messages: list[str] = []
     tasks = session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all()
     for task in tasks:
-        refresh_backup_for_task(session, task)
+        remove_backup_assignments_for_task(session, task)
         session.commit()
-        backup = next((assignment.participant.name for assignment in task.assignments if assignment.role == "backup"), None)
-        if backup:
-            messages.append(f"Reserve for '{task.name}' day {task.day}: {backup}")
-        else:
-            messages.append(f"No reserve available for '{task.name}' day {task.day}.")
-    messages.append("Reserves refreshed.")
+        messages.append(f"Removed replacement placeholders for '{task.name}' day {task.day}.")
+    messages.append("All replacement placeholders removed.")
     return messages
 
 
 def export_csv(session, output_dir: str) -> dict[str, str]:
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(_EEST).strftime("%Y%m%d_%H%M%S")
     tasks = session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all()
 
     schedule_path = output_path / f"schedule_{timestamp}.csv"
@@ -130,7 +119,8 @@ def export_csv(session, output_dir: str) -> dict[str, str]:
         writer = csv.writer(handle)
         writer.writerow(["day", "begin_time", "end_time", "task", "block", "points", "role", "participant", "email"])
         for task in tasks:
-            for assignment in sorted(task.assignments, key=lambda item: (item.role, item.participant.name.lower())):
+            visible_assignments = [item for item in task.assignments if item.role in {"lead", "helper"}]
+            for assignment in sorted(visible_assignments, key=lambda item: (item.role, item.participant.name.lower())):
                 writer.writerow(
                     [
                         task.day,
@@ -187,13 +177,14 @@ def export_csv(session, output_dir: str) -> dict[str, str]:
 
 
 def generate_schedule_csv(session) -> tuple[str, str]:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(_EEST).strftime("%Y%m%d_%H%M%S")
     tasks = session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all()
     buf = io.StringIO()
     writer = csv.writer(buf)
     writer.writerow(["day", "begin_time", "end_time", "task", "block", "points", "role", "participant", "email"])
     for task in tasks:
-        for assignment in sorted(task.assignments, key=lambda a: (a.role, a.participant.name.lower())):
+        visible_assignments = [a for a in task.assignments if a.role in {"lead", "helper"}]
+        for assignment in sorted(visible_assignments, key=lambda a: (a.role, a.participant.name.lower())):
             writer.writerow([
                 task.day, task.begin_time.strftime("%H:%M"), task.end_time.strftime("%H:%M"),
                 task.name, task.time_block, task.points,
@@ -203,7 +194,7 @@ def generate_schedule_csv(session) -> tuple[str, str]:
 
 
 def generate_points_csv(session) -> tuple[str, str]:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(_EEST).strftime("%Y%m%d_%H%M%S")
     totals = compute_total_points(session)
     participants = sorted(session.query(Participant).all(), key=lambda p: totals.get(p.id, 0), reverse=True)
     buf = io.StringIO()
@@ -215,7 +206,7 @@ def generate_points_csv(session) -> tuple[str, str]:
 
 
 def generate_per_person_csv(session) -> tuple[str, str]:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(_EEST).strftime("%Y%m%d_%H%M%S")
     totals = compute_total_points(session)
     buf = io.StringIO()
     writer = csv.writer(buf)

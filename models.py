@@ -25,6 +25,22 @@ class Participant(Base):
     email = Column(String(254), nullable=False, unique=True, index=True)
     phone = Column(String(50), nullable=True)
     remarks = Column(Text, nullable=True)
+    submitted_at = Column(String(40), nullable=True)
+    child_first = Column(String(100), nullable=True)
+    child_last = Column(String(100), nullable=True)
+    child_att_d1 = Column(Text, nullable=True)
+    child_att_d2 = Column(Text, nullable=True)
+    child_att_d3 = Column(Text, nullable=True)
+    child_att_d4 = Column(Text, nullable=True)
+    child_diet = Column(Text, nullable=True)
+    child_notes = Column(Text, nullable=True)
+    first_ntc = Column(Boolean, default=False)
+    sleep_pref = Column(String(120), nullable=True)
+    sleep_notes = Column(Text, nullable=True)
+    avail_notes = Column(Text, nullable=True)
+    has_car = Column(Boolean, default=False)
+    parent_diet = Column(Text, nullable=True)
+    survey_chat = Column(String(120), nullable=True)
 
     day1_morning = Column(Boolean, default=False)
     day1_afternoon = Column(Boolean, default=False)
@@ -182,6 +198,20 @@ class Unavailability(Base):
     task = relationship("Task", back_populates="unavailabilities", foreign_keys=[task_id])
 
 
+class ChangeLog(Base):
+    __tablename__ = "change_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(Text, nullable=False)
+    category = Column(String(40), nullable=False, default="info")
+    participant_id = Column(Integer, ForeignKey("participants.id", ondelete="SET NULL"), nullable=True)
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+    participant = relationship("Participant", foreign_keys=[participant_id])
+    task = relationship("Task", foreign_keys=[task_id])
+
+
 def get_engine():
     return create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 
@@ -198,6 +228,24 @@ def init_db():
     # Safe migration: add messaging column if it doesn't exist yet
     from sqlalchemy import text
     engine = get_engine()
+    participant_column_defs = {
+        "submitted_at": "VARCHAR(40) NULL",
+        "child_first": "VARCHAR(100) NULL",
+        "child_last": "VARCHAR(100) NULL",
+        "child_att_d1": "TEXT NULL",
+        "child_att_d2": "TEXT NULL",
+        "child_att_d3": "TEXT NULL",
+        "child_att_d4": "TEXT NULL",
+        "child_diet": "TEXT NULL",
+        "child_notes": "TEXT NULL",
+        "first_ntc": "TINYINT(1) NOT NULL DEFAULT 0",
+        "sleep_pref": "VARCHAR(120) NULL",
+        "sleep_notes": "TEXT NULL",
+        "avail_notes": "TEXT NULL",
+        "has_car": "TINYINT(1) NOT NULL DEFAULT 0",
+        "parent_diet": "TEXT NULL",
+        "survey_chat": "VARCHAR(120) NULL",
+    }
     with engine.connect() as conn:
         try:
             conn.execute(text(
@@ -215,4 +263,12 @@ def init_db():
             conn.commit()
         except Exception:
             pass  # Column already exists
+        for column_name, sql_type in participant_column_defs.items():
+            try:
+                conn.execute(text(
+                    f"ALTER TABLE participants ADD COLUMN `{column_name}` {sql_type}"
+                ))
+                conn.commit()
+            except Exception:
+                pass  # Column already exists
     print("Database tables created (or already exist).")

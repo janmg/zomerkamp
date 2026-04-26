@@ -1,10 +1,15 @@
 {% extends "base.html" %}
+{% from "_messaging_icons.html" import messaging_icon %}
 {% block title %}Master Sheet - Zomerkamp Super Version{% endblock %}
 {% block content %}
 {% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
 
 <style>
   .master-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.25rem; }
+  .master-tools { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .task-filter-wrap { display: flex; align-items: center; gap: 0.5rem; }
+  .task-filter-wrap label { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+  .task-filter-input { width: min(340px, 82vw); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.6rem; background: #fff; }
   .toggle-wrap { display: flex; align-items: center; gap: 0.55rem; }
   .toggle-wrap label { font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; }
   .toggle-switch { position: relative; display: inline-block; width: 2.6rem; height: 1.4rem; }
@@ -19,6 +24,13 @@
   <div>
     <h2 style="margin-bottom:0;">Master Sheet</h2>
     <p class="intro" style="margin-top:0.2rem;">Full operational view across all days, with lead and helper coverage for every task.</p>
+  </div>
+</div>
+
+<div class="master-tools">
+  <div class="task-filter-wrap">
+    <label for="task-filter">Filter tasks</label>
+    <input id="task-filter" class="task-filter-input" type="search" placeholder="Type task name..." autocomplete="off">
   </div>
   <div class="toggle-wrap">
     <label for="upcoming-toggle">Upcoming only</label>
@@ -48,17 +60,16 @@
     </thead>
     <tbody>
       {% for task in tasks %}
-      <tr data-end-iso="{{ task.end_iso }}">
+      <tr data-end-iso="{{ task.end_iso }}" data-task-name="{{ task.name|lower }}">
         <td>{{ task.begin }}-{{ task.end }}</td>
         <td>
           <strong>{{ task.name }}</strong>
-          <div class="quiet">Task ID {{ task.id }}</div>
         </td>
         <td>{{ task.time_block }}</td>
         <td>
           {% if task.lead %}
             <div><a href="/schedule?name={{ task.lead.participant.name|urlencode }}">{{ task.lead.participant.name }}</a></div>
-            {% if task.lead.participant.phone %}<div class="quiet">{{ task.lead.participant.phone }}</div>{% endif %}
+            {% if task.lead.participant.phone %}<div class="quiet">{{ messaging_icon(task.lead.participant.messaging or 'whatsapp') }} {{ task.lead.participant.phone }}</div>{% endif %}
           {% else %}
             <span class="quiet">-</span>
           {% endif %}
@@ -66,7 +77,7 @@
         <td>
           {% if task.helpers %}
             {% for helper in task.helpers %}
-            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ helper.participant.phone }}</span>{% endif %}</div>
+            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ messaging_icon(helper.participant.messaging or 'whatsapp') }} {{ helper.participant.phone }}</span>{% endif %}</div>
             {% endfor %}
           {% else %}
             <span class="quiet">-</span>
@@ -84,10 +95,12 @@
 <script>
 (function () {
   const toggle = document.getElementById("upcoming-toggle");
+  const taskFilter = document.getElementById("task-filter");
   const status = document.getElementById("upcoming-status");
 
   function applyFilter() {
     const upcomingOnly = toggle.checked;
+    const query = (taskFilter?.value || "").trim().toLowerCase();
     const now = new Date();
 
     // Collect all rows with end timestamps
@@ -107,16 +120,22 @@
     }
 
     let hiddenCount = 0;
+    let visibleCount = 0;
     for (const row of allRows) {
       const endTime = new Date(row.dataset.endIso);
       const isPast = endTime <= now;
       const isMostRecent = row === latestPastRow;
+      const taskName = row.dataset.taskName || "";
+      const matchesTask = !query || taskName.includes(query);
 
-      if (upcomingOnly && isPast && !isMostRecent) {
+      if (!matchesTask || (upcomingOnly && isPast && !isMostRecent)) {
         row.style.display = "none";
-        hiddenCount++;
+        if (upcomingOnly && isPast && !isMostRecent) {
+          hiddenCount++;
+        }
       } else {
         row.style.display = "";
+        visibleCount++;
         if (isPast) {
           row.style.color = "var(--quiet, #888)";
           row.style.opacity = "0.6";
@@ -133,10 +152,20 @@
       block.style.display = visibleRows.length === 0 ? "none" : "";
     }
 
-    status.textContent = upcomingOnly && hiddenCount > 0 ? `${hiddenCount} past task(s) hidden` : "";
+    const statusParts = [];
+    if (query) {
+      statusParts.push(`${visibleCount} match${visibleCount === 1 ? "" : "es"}`);
+    }
+    if (upcomingOnly && hiddenCount > 0) {
+      statusParts.push(`${hiddenCount} past task(s) hidden`);
+    }
+    status.textContent = statusParts.join(" • ");
   }
 
   toggle.addEventListener("change", applyFilter);
+  if (taskFilter) {
+    taskFilter.addEventListener("input", applyFilter);
+  }
   applyFilter();
 })();
 </script>

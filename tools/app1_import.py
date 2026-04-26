@@ -5,7 +5,13 @@ from __future__ import annotations
 
 import argparse
 import sys
-from app4_web.services.import_service import import_participants_from_csv_path, import_tasks_from_csv_path
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from web.services.import_service import import_participants_from_csv_path, import_tasks_from_csv_path
 from models import get_session, init_db
 
 

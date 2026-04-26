@@ -5,10 +5,15 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from tabulate import tabulate
 
-from app4_web.services import admin_service
+from web.services import admin_service
 from models import get_session
 
 
@@ -43,9 +48,8 @@ def cmd_list_tasks(session, args):
             task["required"],
             task["lead"],
             task["helpers"],
-            task["backup"],
         ])
-    print(tabulate(rows, headers=["TID", "Day", "Time", "Task", "Block", "Pts", "Req", "Lead", "Helpers", "Backup"], tablefmt="rounded_outline"))
+    print(tabulate(rows, headers=["TID", "Day", "Time", "Task", "Block", "Pts", "Req", "Lead", "Helpers"], tablefmt="rounded_outline"))
 
 
 def cmd_list_unavailable(session, _args):
@@ -72,15 +76,6 @@ def cmd_set_unavailable(session, args):
 def cmd_remove_unavailable(session, args):
     try:
         message = admin_service.remove_unavailable(session, args.id)
-    except ValueError as exc:
-        print(f"[ERROR] {exc}")
-        sys.exit(1)
-    print(f"[OK] {message}")
-
-
-def cmd_confirm_backup(session, args):
-    try:
-        message = admin_service.confirm_backup(session, args.task)
     except ValueError as exc:
         print(f"[ERROR] {exc}")
         sys.exit(1)
@@ -127,12 +122,6 @@ def build_parser():
     remove_unavailable_parser = sub.add_parser("remove-unavailable", help="Remove an unavailability record.")
     remove_unavailable_parser.add_argument("--id", type=int, required=True, metavar="UID")
 
-    confirm_backup_parser = sub.add_parser("confirm-backup", help="Promote backup to helper and select a new backup.")
-    confirm_backup_parser.add_argument("--task", type=int, required=True, metavar="TASK_ID")
-
-    award_backup_parser = sub.add_parser("award-backup", help="Alias for confirm-backup.")
-    award_backup_parser.add_argument("--task", type=int, required=True, metavar="TASK_ID")
-
     set_lead_parser = sub.add_parser("set-lead", help="Set the lead for a task.")
     set_lead_parser.add_argument("--task", type=int, required=True, metavar="TASK_ID")
     set_lead_parser.add_argument("--person", required=True, help="Participant name, partial match allowed.")
@@ -140,9 +129,6 @@ def build_parser():
     remove_assignment_parser = sub.add_parser("remove-assignment", help="Remove a person from a task.")
     remove_assignment_parser.add_argument("--task", type=int, required=True, metavar="TASK_ID")
     remove_assignment_parser.add_argument("--person", required=True, help="Participant name, partial match allowed.")
-
-    new_backup_parser = sub.add_parser("new-backup", help="Refresh the backup for one task.")
-    new_backup_parser.add_argument("--task", type=int, required=True, metavar="TASK_ID")
 
     return parser
 
@@ -162,19 +148,10 @@ def main():
             cmd_set_unavailable(session, args)
         elif args.command == "remove-unavailable":
             cmd_remove_unavailable(session, args)
-        elif args.command in {"confirm-backup", "award-backup"}:
-            cmd_confirm_backup(session, args)
         elif args.command == "set-lead":
             cmd_set_lead(session, args)
         elif args.command == "remove-assignment":
             cmd_remove_assignment(session, args)
-        elif args.command == "new-backup":
-            try:
-                message = admin_service.refresh_backup(session, args.task)
-            except ValueError as exc:
-                print(f"[ERROR] {exc}")
-                sys.exit(1)
-            print(f"[OK] {message}")
     finally:
         session.close()
 

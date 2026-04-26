@@ -1,0 +1,134 @@
+name,email,phone,remarks,day,begin_time,end_time,task,role,points_awarded
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,1,08:00,09:30,Setup tables and chairs,helper,5
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,1,12:30,14:00,Serving lunch,backup,0
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,1,14:00,16:00,Afternoon activities,helper,12
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,2,09:00,11:00,Serving snacks and drinks,helper,7
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,08:00,09:00,Morning cleaning,helper,4
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,09:00,10:30,Serving breakfast,lead,8
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,10:30,12:30,Activity facilitation,backup,0
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,12:30,14:00,Lunch setup and serving,helper,8
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,17:00,18:00,Snack service,helper,6
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,19:30,20:30,Serving dinner,helper,8
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,3,20:30,21:30,Staff meeting,backup,0
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,4,13:00,14:30,Lunch and farewell,backup,0
+Alice Johnson,alice@example.com,06-1234567,Prefers kitchen work,4,14:30,17:00,Pack and cleanup,helper,10
+Bob Smith,bob@example.com,06-2345678,Great with coordination,1,08:00,09:30,Setup tables and chairs,backup,0
+Bob Smith,bob@example.com,06-2345678,Great with coordination,1,09:30,11:00,Serving breakfast,lead,8
+Bob Smith,bob@example.com,06-2345678,Great with coordination,1,14:00,16:00,Afternoon activities,helper,12
+Bob Smith,bob@example.com,06-2345678,Great with coordination,2,17:00,18:00,Serving afternoon snacks,helper,6
+Bob Smith,bob@example.com,06-2345678,Great with coordination,2,19:30,21:00,Serving dinner,helper,8
+Bob Smith,bob@example.com,06-2345678,Great with coordination,4,08:00,09:30,Final day preparations,lead,5
+Bob Smith,bob@example.com,06-2345678,Great with coordination,4,09:30,11:00,Breakfast service,lead,8
+Bob Smith,bob@example.com,06-2345678,Great with coordination,4,11:00,13:00,Closing activities,helper,15
+Bob Smith,bob@example.com,06-2345678,Great with coordination,4,14:30,17:00,Pack and cleanup,helper,10
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,1,12:30,14:00,Serving lunch,helper,8
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,1,14:00,16:00,Afternoon activities,helper,12
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,2,13:00,15:00,Organizing games,lead,12
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,2,21:00,22:30,Cleanup evening,helper,6
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,3,14:00,15:00,Afternoon workshop setup,helper,6
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,4,11:00,13:00,Closing activities,helper,15
+Charlie Brown,charlie@example.com,06-3456789,Willing to do any task,4,14:30,17:00,Pack and cleanup,helper,10
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,1,09:30,11:00,Serving breakfast,helper,8
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,1,14:00,16:00,Afternoon activities,helper,12
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,2,13:00,15:00,Organizing games,helper,12
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,2,21:00,22:30,Cleanup evening,helper,6
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,3,14:00,15:00,Afternoon workshop setup,backup,0
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,3,15:00,17:00,Afternoon workshop,lead,12
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,3,19:30,20:30,Serving dinner,helper,8
+Diana Prince,diana@example.com,06-4567890,Has allergy considerations,4,14:30,17:00,Pack and cleanup,helper,10
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,1,09:30,11:00,Serving breakfast,backup,0
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,1,11:00,12:30,Morning games,helper,10
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,1,16:00,18:00,Preparing dinner,backup,0
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,1,18:00,19:30,Serving dinner,lead,8
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,2,11:00,12:30,Cleaning toilets,lead,4
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,2,15:00,17:00,Afternoon food prep,helper,10
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,2,21:00,22:30,Cleanup evening,helper,6
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,3,17:00,18:00,Snack service,lead,6
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,3,18:00,19:30,Dinner preparation,lead,10
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,3,20:30,21:30,Staff meeting,helper,3
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,4,13:00,14:30,Lunch and farewell,helper,8
+Eve Wilson,eve@example.com,06-5678901,Prefers morning shift,4,17:00,18:30,Final cleanup,helper,8
+Frank Miller,frank@example.com,06-6789012,Very flexible,1,08:00,09:30,Setup tables and chairs,lead,5
+Frank Miller,frank@example.com,06-6789012,Very flexible,1,11:00,12:30,Morning games,backup,0
+Frank Miller,frank@example.com,06-6789012,Very flexible,1,14:00,16:00,Afternoon activities,lead,12
+Frank Miller,frank@example.com,06-6789012,Very flexible,1,19:30,20:30,Evening entertainment setup,backup,0
+Frank Miller,frank@example.com,06-6789012,Very flexible,2,09:00,11:00,Serving snacks and drinks,helper,7
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,08:00,09:00,Morning cleaning,lead,4
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,09:00,10:30,Serving breakfast,helper,8
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,10:30,12:30,Activity facilitation,helper,12
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,18:00,19:30,Dinner preparation,backup,0
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,19:30,20:30,Serving dinner,lead,8
+Frank Miller,frank@example.com,06-6789012,Very flexible,3,20:30,21:30,Staff meeting,helper,3
+Frank Miller,frank@example.com,06-6789012,Very flexible,4,14:30,17:00,Pack and cleanup,helper,10
+Frank Miller,frank@example.com,06-6789012,Very flexible,4,17:00,18:30,Final cleanup,backup,0
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,1,12:30,14:00,Serving lunch,helper,8
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,1,14:00,16:00,Afternoon activities,backup,0
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,1,16:00,18:00,Preparing dinner,helper,10
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,2,09:00,11:00,Serving snacks and drinks,backup,0
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,2,11:00,12:30,Cleaning toilets,helper,4
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,2,15:00,17:00,Afternoon food prep,backup,0
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,2,18:00,19:30,Dinner preparation,helper,10
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,2,21:00,22:30,Cleanup evening,backup,0
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,3,12:30,14:00,Lunch setup and serving,lead,8
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,3,15:00,17:00,Afternoon workshop,helper,12
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,3,20:30,21:30,Staff meeting,helper,3
+Grace Lee,grace@example.com,06-7890123,Energetic and outgoing,4,11:00,13:00,Closing activities,helper,15
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,1,11:00,12:30,Morning games,helper,10
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,1,14:00,16:00,Cleaning after lunch,helper,5
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,2,09:00,11:00,Serving snacks and drinks,lead,7
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,2,18:00,19:30,Dinner preparation,helper,10
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,3,08:00,09:00,Morning cleaning,backup,0
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,3,09:00,10:30,Serving breakfast,backup,0
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,3,10:30,12:30,Activity facilitation,helper,12
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,4,08:00,09:30,Final day preparations,helper,5
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,4,09:30,11:00,Breakfast service,helper,8
+Henry Davis,henry@example.com,06-8901234,Prefers physical work,4,17:00,18:30,Final cleanup,lead,8
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,1,11:00,12:30,Morning games,lead,10
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,1,14:00,16:00,Cleaning after lunch,backup,0
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,1,18:00,19:30,Serving dinner,helper,8
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,2,11:00,12:30,Cleaning toilets,backup,0
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,2,17:00,18:00,Serving afternoon snacks,lead,6
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,2,18:00,19:30,Dinner preparation,backup,0
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,2,19:30,21:00,Serving dinner,lead,8
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,3,10:30,12:30,Activity facilitation,lead,12
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,3,17:00,18:00,Snack service,backup,0
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,3,18:00,19:30,Dinner preparation,helper,10
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,3,20:30,21:30,Staff meeting,helper,3
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,4,13:00,14:30,Lunch and farewell,helper,8
+Ivy Chen,ivy@example.com,06-9012345,Great event coordinator,4,17:00,18:30,Final cleanup,helper,8
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,1,12:30,14:00,Serving lunch,lead,8
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,1,14:00,16:00,Cleaning after lunch,lead,5
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,1,18:00,19:30,Serving dinner,helper,8
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,2,13:00,15:00,Organizing games,helper,12
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,3,12:30,14:00,Lunch setup and serving,helper,8
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,3,15:00,17:00,Afternoon workshop,helper,12
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,3,20:30,21:30,Staff meeting,helper,3
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,4,11:00,13:00,Closing activities,backup,0
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,4,13:00,14:30,Lunch and farewell,lead,8
+Jack Robinson,jack@example.com,06-0123456,Has meal prep experience,4,14:30,17:00,Pack and cleanup,backup,0
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,1,11:00,12:30,Morning games,helper,10
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,1,14:00,16:00,Cleaning after lunch,helper,5
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,1,19:30,20:30,Evening entertainment setup,helper,6
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,2,13:00,15:00,Organizing games,backup,0
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,2,15:00,17:00,Afternoon food prep,lead,10
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,2,19:30,21:00,Serving dinner,backup,0
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,2,21:00,22:30,Cleanup evening,lead,6
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,3,12:30,14:00,Lunch setup and serving,backup,0
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,3,14:00,15:00,Afternoon workshop setup,lead,6
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,3,15:00,17:00,Afternoon workshop,backup,0
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,4,11:00,13:00,Closing activities,lead,15
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,4,14:30,17:00,Pack and cleanup,lead,10
+Kate Murphy,kate@example.com,06-1234560,Detail-oriented,4,17:00,18:30,Final cleanup,helper,8
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,1,08:00,09:30,Setup tables and chairs,helper,5
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,1,16:00,18:00,Preparing dinner,lead,10
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,1,18:00,19:30,Serving dinner,backup,0
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,1,19:30,20:30,Evening entertainment setup,lead,6
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,2,17:00,18:00,Serving afternoon snacks,backup,0
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,2,18:00,19:30,Dinner preparation,lead,10
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,2,19:30,21:00,Serving dinner,helper,8
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,3,15:00,17:00,Afternoon workshop,helper,12
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,3,19:30,20:30,Serving dinner,backup,0
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,3,20:30,21:30,Staff meeting,lead,3
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,4,08:00,09:30,Final day preparations,backup,0
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,4,09:30,11:00,Breakfast service,backup,0
+Liam O'Brien,liam@example.com,06-2345671,Flexible with schedule,4,11:00,13:00,Closing activities,helper,15

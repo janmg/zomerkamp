@@ -17,27 +17,8 @@ dashboard_bp = Blueprint("dashboard", __name__)
 
 @dashboard_bp.route("/")
 def index():
-    session = get_session()
-    try:
-        participant_count = session.query(Participant).count()
-        task_count = session.query(Task).count()
-        assigned_count = sum(1 for participant in session.query(Participant).all() for _ in participant.assignments)
-        top_volunteer = None
-        totals = compute_total_points(session)
-        if totals:
-            winner = max(session.query(Participant).all(), key=lambda participant: totals.get(participant.id, 0), default=None)
-            if winner is not None:
-                top_volunteer = {"name": winner.name, "points": totals.get(winner.id, 0)}
-    finally:
-        session.close()
-
-    return render_template(
-        "index.html",
-        participant_count=participant_count,
-        task_count=task_count,
-        assigned_count=assigned_count,
-        top_volunteer=top_volunteer,
-    )
+    from flask import redirect, url_for
+    return redirect(url_for("dashboard.master"))
 
 
 @dashboard_bp.route("/leaderboard")
@@ -110,7 +91,8 @@ def schedule():
         session.close()
 
     name_filter = request.args.get("name", "").strip()
-    return render_template("schedule.html", people=people, name_filter=name_filter)
+    from config import PUBLIC_URL
+    return render_template("schedule.html", people=people, name_filter=name_filter, public_url=PUBLIC_URL)
 
 
 @dashboard_bp.route("/master")

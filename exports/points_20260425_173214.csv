@@ -1,0 +1,13 @@
+rank,name,email,phone,preference,points
+1,Eve Wilson,eve@example.com,06-5678901,cleaning after food,88
+2,Grace Lee,grace@example.com,06-7890123,serving snacks,80
+3,Liam O'Brien,liam@example.com,06-2345671,do not care,77
+4,Alice Johnson,alice@example.com,06-1234567,serving food,76
+5,Diana Prince,diana@example.com,06-4567890,serving snacks,76
+6,Kate Murphy,kate@example.com,06-1234560,cleaning after food,76
+7,Frank Miller,frank@example.com,06-6789012,do not care,74
+8,Ivy Chen,ivy@example.com,06-9012345,organize afternoon games,73
+9,Henry Davis,henry@example.com,06-8901234,cleaning toilets,71
+10,Charlie Brown,charlie@example.com,06-3456789,cleaning toilets,69
+11,Jack Robinson,jack@example.com,06-0123456,serving food,64
+12,Bob Smith,bob@example.com,06-2345678,organize afternoon games,0

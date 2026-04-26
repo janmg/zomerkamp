@@ -3,6 +3,7 @@
 {% block title %}Schedule - Zomerkamp Super Version{% endblock %}
 {% block content %}
 {% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
+{% set is_admin = request.cookies.get('is_admin') == '1' %}
 <style>
   .person-header { position: relative; }
   .qr-btn {
@@ -18,13 +19,24 @@
     margin-left: 0.5rem;
   }
   .qr-btn:hover { background: var(--line); color: var(--ink); }
+  .name-filter-input {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #d0b24a;
+    border-radius: 8px;
+    min-width: 220px;
+    background: #fff4bf;
+  }
+  .name-filter-input:focus {
+    outline: 2px solid rgba(208, 178, 74, 0.45);
+    outline-offset: 1px;
+  }
 </style>
 <h2>Schedule Per Participant</h2>
 <p class="intro">Alphabetical participant view with task assignments, contact details, preferences, and remarks.</p>
 
 <div class="meta" style="margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
-  <label for="name-filter"><strong>Find participant:</strong></label>
-  <input id="name-filter" type="search" placeholder="Type a name..." style="padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; min-width: 220px;" autocomplete="off" value="{{ name_filter|e }}">
+  <label for="name-filter"><strong>Filter on participant:</strong></label>
+  <input id="name-filter" class="name-filter-input" type="search" placeholder="Type a name..." autocomplete="off" value="{{ name_filter|e }}">
   <span id="filter-status" class="quiet"></span>
 </div>
 
@@ -42,8 +54,10 @@
       <div class="quiet" style="margin-top:0.35rem;">{{ person.remarks }}</div>
       {% endif %}
     </div>
+    {% if is_admin %}
     <span class="pts">{{ person.total_points }} pts</span>
-    <button class="qr-btn" data-qr-url="http://zomerkamp.ntc.fi/schedule?name={{ person.name|urlencode }}" title="Show QR code" aria-label="QR code for {{ person.name }}">
+    {% endif %}
+    <button class="qr-btn" data-qr-url="{{ public_url }}/schedule?name={{ person.name|urlencode }}" title="Show QR code" aria-label="QR code for {{ person.name }}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
     </button>
   </div>
@@ -100,7 +114,7 @@
     <button id="qr-close" aria-label="Close" style="position:absolute; top:0.75rem; right:0.75rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#555;">&times;</button>
     <div id="qr-name" style="font-weight:700; font-size:1.1rem; margin-bottom:1rem;"></div>
     <canvas id="qr-canvas" style="display:block; margin:0 auto;"></canvas>
-    <div id="qr-url" style="margin-top:0.75rem; font-size:0.78rem; color:#666; word-break:break-all;"></div>
+    <div id="qr-url" style="margin-top:0.75rem; font-size:0.78rem; color:#666; word-break:break-all;"><a id="qr-url-link" href="#" style="color:#1a73e8; text-decoration:none;" target="_blank"></a></div>
   </div>
 </div>
 
@@ -149,7 +163,7 @@
     const qrClose = document.getElementById("qr-close");
     const qrCanvas = document.getElementById("qr-canvas");
     const qrName = document.getElementById("qr-name");
-    const qrUrlLabel = document.getElementById("qr-url");
+    const qrUrlLink = document.getElementById("qr-url-link");
 
     document.querySelectorAll(".qr-btn").forEach(function (btn) {
       btn.addEventListener("click", function (e) {
@@ -157,7 +171,8 @@
         const url = btn.dataset.qrUrl;
         const name = btn.closest(".person-card").querySelector("strong").textContent;
         qrName.textContent = name;
-        qrUrlLabel.textContent = url;
+        qrUrlLink.href = url;
+        qrUrlLink.textContent = url;
         overlay.style.display = "flex";
         QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2 }, function () {});
       });

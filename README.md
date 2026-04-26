@@ -5,7 +5,7 @@ Zomerkamp is a volunteer scheduling system for a 4-day event. It stores particip
 The main flows from the old app1-app3 scripts now also exist inside the web server:
 
 - app1: CSV import through `/import`
-- app2: scheduling and export operations through `/operations`
+- app2: scheduling and export operations through `/admin`
 - app3: admin overrides and assignment management through `/admin`
 
 ## Project Structure
@@ -17,17 +17,18 @@ zomerkamp/
 |- roster_logic.py              # Candidate ranking and scheduling helpers
 |- requirements.txt
 |
-|- app1_import.py               # CLI entry point: CSV import
-|- app2_schedule.py             # CLI entry point: scheduler and export
-|- app3_admin.py                # CLI entry point: admin operations
+|- tools/
+|  |- app1_import.py            # CLI entry point: CSV import
+|  |- app2_schedule.py          # CLI entry point: scheduler and export
+|  |- app3_admin.py             # CLI entry point: admin operations
 |
-|- app4_web/
+|- web/
 |  |- __init__.py               # Flask app factory
 |  |- app.py                    # Flask startup entry point
 |  |- routes/
 |  |  |- dashboard.py           # Read-only dashboard pages
 |  |  |- imports.py             # Upload/import web flow
-|  |  |- operations.py          # Scheduling/export web flow
+|  |  |- admin.py              # Admin management + export web flow
 |  |  |- admin.py               # Admin management web flow
 |  |
 |  |- services/
@@ -39,7 +40,7 @@ zomerkamp/
 |  |- static/                   # Static assets
 |
 |- sample_tasks.csv             # Example tasks CSV
-|- sample_participants.csv      # Example participants CSV
+|- Zomerkamp-Formulierreacties.csv
 |- INSTALLATION.md              # Setup and run instructions
 ```
 
@@ -52,34 +53,34 @@ Follow [INSTALLATION.md](INSTALLATION.md) for the full MariaDB and environment s
 ### 2. Create tables
 
 ```bash
-python app1_import.py --init-db
+python tools/app1_import.py --init-db
 ```
 
 ### 3. Start the web app
 
 ```bash
-python app4_web/app.py
+python web/app.py
 ```
 
-Open `http://localhost:5000`.
+Open `http://127.0.0.1:5001`.
 
-### 4. Load sample data
+### 4. Load data
 
 You can either:
 
-- go to `/import` and upload `sample_tasks.csv` and `sample_participants.csv`
+- go to `/import` and upload `sample_tasks.csv` and `Zomerkamp Survey NTC Finland 2026 (Antwoorden) - Formulierreacties.csv`
 - or use the CLI:
 
 ```bash
-python app1_import.py --tasks sample_tasks.csv --participants sample_participants.csv
+python tools/app1_import.py --tasks sample_tasks.csv --participants "Zomerkamp Survey NTC Finland 2026 (Antwoorden) - Formulierreacties.csv"
 ```
 
 ### 5. Generate a schedule
 
-Either use `/operations` in the browser or run:
+Either use `/admin` in the browser or run:
 
 ```bash
-python app2_schedule.py schedule
+python tools/app2_schedule.py schedule
 ```
 
 ## Web Interface
@@ -90,8 +91,8 @@ The web app is now the main operational surface.
 |---|---|
 | `/` | Dashboard with navigation and summary metrics |
 | `/import` | Initialize DB tables and upload tasks/participants CSV files |
-| `/operations` | Run the scheduler, refresh backups, export CSV files |
-| `/admin` | Manage unavailability, backups, leads, and assignments |
+| `/admin` | Manage unavailability, leads, assignments, and download exports |
+| `/admin` | Manage unavailability, leads, and assignments |
 | `/leaderboard` | Participants ranked by points earned |
 | `/schedule` | Per-participant schedule view |
 | `/master` | Master sheet across all days and tasks |
@@ -100,39 +101,37 @@ The web app is now the main operational surface.
 
 The CLI tools still work, but now call the same shared service layer used by the web app.
 
-### `app1_import.py`
+### `tools/app1_import.py`
 
 Imports task and participant CSV data.
 
 ```bash
-python app1_import.py --init-db
-python app1_import.py --tasks sample_tasks.csv --participants sample_participants.csv
+python tools/app1_import.py --init-db
+python tools/app1_import.py --tasks sample_tasks.csv --participants "Zomerkamp Survey NTC Finland 2026 (Antwoorden) - Formulierreacties.csv"
 ```
 
-### `app2_schedule.py`
+### `tools/app2_schedule.py`
 
 Scheduler and export commands.
 
 ```bash
-python app2_schedule.py schedule
-python app2_schedule.py schedule --keep-existing
-python app2_schedule.py show
-python app2_schedule.py export --output ./exports
-python app2_schedule.py backup
+python tools/app2_schedule.py schedule
+python tools/app2_schedule.py schedule --keep-existing
+python tools/app2_schedule.py show
+python tools/app2_schedule.py export --output ./exports
 ```
 
-### `app3_admin.py`
+### `tools/app3_admin.py`
 
 Admin and override commands.
 
 ```bash
-python app3_admin.py list-people
-python app3_admin.py list-tasks --day 2
-python app3_admin.py list-unavailable
-python app3_admin.py set-unavailable --person "Alice" --day 2 --reason "Unavailable"
-python app3_admin.py confirm-backup --task 5
-python app3_admin.py set-lead --task 5 --person "Grace"
-python app3_admin.py remove-assignment --task 5 --person "Bob"
+python tools/app3_admin.py list-people
+python tools/app3_admin.py list-tasks --day 2
+python tools/app3_admin.py list-unavailable
+python tools/app3_admin.py set-unavailable --person "Alice" --day 2 --reason "Unavailable"
+python tools/app3_admin.py set-lead --task 5 --person "Grace"
+python tools/app3_admin.py remove-assignment --task 5 --person "Bob"
 ```
 
 ## CSV Formats
@@ -150,7 +149,7 @@ python app3_admin.py remove-assignment --task 5 --person "Bob"
 
 The system derives the time block (`morning`, `afternoon`, `evening`) automatically from the task midpoint.
 
-### `participants.csv`
+### `participants.csv` (legacy format)
 
 | Column | Description |
 |---|---|
@@ -161,6 +160,18 @@ The system derives the time block (`morning`, `afternoon`, `evening`) automatica
 | `day1_morning` ... `day4_evening` | `TRUE` / `FALSE` availability per block |
 | `preference` | One of: `serving snacks`, `serving food`, `cleaning after food`, `cleaning toilets`, `organize afternoon games`, `do not care` |
 
+### Google Form survey export (recommended)
+
+The participant importer also supports the Dutch Google Form CSV export used by this project.
+
+Key mappings:
+
+- `Naam Ouder` -> participant `name`
+- `E-mail Ouder` -> participant `email`
+- `Telefoonnummer Ouder` -> participant `phone`
+- `Mijn beschikbaarheid als hulpouder is: [...]` -> `day1_morning` ... `day4_evening`
+- child-related fields are stored in compact extra participant columns (for example `child_first`, `child_last`, `child_diet`, `sleep_pref`, `has_car`)
+
 ## Scheduling Rules
 
 1. Tasks are processed in day/time order.
@@ -169,7 +180,7 @@ The system derives the time block (`morning`, `afternoon`, `evening`) automatica
 4. Candidates are ranked by fairness first: lowest projected total points wins.
 5. Preference matching is used as a tie-breaker.
 6. The first active assignee becomes `lead`; remaining required people become `helper`.
-7. One additional eligible participant is selected as `backup` when possible.
+7. When someone becomes unavailable, replacements are calculated on the fly from eligible candidates.
 
 ## Export Output
 
@@ -214,10 +225,9 @@ The export flow writes three timestamped CSV files:
 
 - `lead`: first person assigned, earns points
 - `helper`: additional required people, earn points
-- `backup`: standby person, earns no points until confirmed via `confirm-backup`
 
 ## Architecture Notes
 
-- `app4_web/services/` contains the shared business logic used by both web routes and CLI scripts.
-- `app4_web/routes/` keeps Flask routes grouped by feature instead of putting all views in one file.
+- `web/services/` contains the shared business logic used by both web routes and CLI scripts.
+- `web/routes/` keeps Flask routes grouped by feature instead of putting all views in one file.
 - The CLI remains useful for scripting, while the browser now supports the same operational workflows.

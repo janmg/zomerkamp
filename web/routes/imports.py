@@ -7,7 +7,7 @@ import io
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from models import get_session
-from app4_web.services.import_service import import_participants_from_handle, import_tasks_from_handle
+from web.services.import_service import import_participants_from_handle, import_tasks_from_handle
 
 import_bp = Blueprint("imports", __name__)
 

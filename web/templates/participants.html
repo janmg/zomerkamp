@@ -9,10 +9,24 @@
   .participants-table th { background: var(--bg); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
   .participants-table tr:last-child td { border-bottom: none; }
   .participants-table tr:hover td { background: rgba(26,115,232,0.04); }
-  .phone-cell { display: flex; align-items: center; gap: 0.45rem; }
+  .phone-cell { display: flex; align-items: center; gap: 0.45rem; position: relative; }
   .msg-icon-btn { background: none; border: none; padding: 2px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; transition: opacity 0.15s; }
   .msg-icon-btn:hover { opacity: 0.7; }
-  .saved-flash { font-size: 0.75rem; color: var(--secondary); display: none; margin-left: 0.3rem; }
+  .saved-flash {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    position: absolute;
+    right: -0.25rem;
+    top: -0.45rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    background: #fff;
+    border-radius: 999px;
+    padding: 0 0.22rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+  .saved-flash.visible { opacity: 1; }
   .group-balls { display: flex; flex-wrap: wrap; gap: 0.25rem; }
   .group-ball { min-width: 1.9rem; height: 1.7rem; border-radius: 999px; padding: 0 0.45rem; border: none; cursor: pointer; font-size: 0.72rem; font-weight: 700; background: var(--line); color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; user-select: none; }
   .group-ball.active { background: var(--accent); color: #fff; }
@@ -86,8 +100,8 @@
     fetch("/participants", { method: "POST", body: fd }).then(function (r) {
       if (r.ok) {
         const flash = row.querySelector(".saved-flash");
-        flash.style.display = "inline";
-        setTimeout(function () { flash.style.display = "none"; }, 1800);
+        flash.classList.add("visible");
+        setTimeout(function () { flash.classList.remove("visible"); }, 1800);
       }
     });
   }

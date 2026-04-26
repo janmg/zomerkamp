@@ -44,3 +44,5 @@ PREFERENCES = [
     "organize afternoon games",
     "do not care",
 ]
+
+PUBLIC_URL = os.getenv("PUBLIC_URL", "https://zomerkamp.janmg.com")

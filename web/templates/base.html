@@ -143,6 +143,42 @@
       border-color: rgba(26, 115, 232, 0.45);
     }
 
+    nav a.nav-yellow {
+      background: #f6e4a5;
+      border-color: rgba(138, 106, 0, 0.42);
+      color: #6a5000;
+    }
+
+    nav a.nav-yellow:hover,
+    nav a.nav-yellow.active {
+      background: #ecd27e;
+      border-color: rgba(138, 106, 0, 0.65);
+    }
+
+    nav .admin-only-nav {
+      display: none;
+    }
+
+    body.is-admin nav .admin-only-nav {
+      display: inline-block;
+    }
+
+    nav .nav-logout-btn {
+      text-decoration: none;
+      padding: 0.65rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(204, 47, 47, 0.28);
+      background: #fff4f4;
+      color: #9f1f1f;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    nav .nav-logout-btn:hover {
+      background: #ffeaea;
+      border-color: rgba(204, 47, 47, 0.45);
+    }
+
     main {
       max-width: 1180px;
       margin: 0 auto;
@@ -458,12 +494,12 @@
     }
   </style>
 </head>
-<body>
+<body{% if request.cookies.get('is_admin') == '1' %} class="is-admin"{% endif %}>
   <header>
     <div class="hero">
       <div class="hero-top">
         <div class="brand">
-          <img src="{{ url_for('static', filename='polaris.png') }}" alt="Polaris logo" class="brand-logo">
+          <img id="admin-unlock-logo" src="{{ url_for('static', filename='polaris.png') }}" alt="Polaris logo" class="brand-logo">
           <div class="brand-copy">
             <h1>Zomerkamp Super Version</h1>
             <p>One merged roster system combining the stronger admin and scheduling flow with the richer data capture and web navigation from both earlier versions.</p>
@@ -471,14 +507,15 @@
         </div>
       </div>
       <nav>
-        <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Home</a>
-        <a href="/import" {% if request.path == '/import' %}class="active"{% endif %}>Import CSV</a>
-        <a href="/operations" {% if request.path == '/operations' %}class="active"{% endif %}>Operations</a>
-        <a href="/admin" {% if request.path == '/admin' %}class="active"{% endif %}>Admin</a>
-        <a href="/leaderboard" {% if request.path == '/leaderboard' %}class="active"{% endif %}>Leaderboard</a>
-        <a href="/participants" {% if request.path == '/participants' %}class="active"{% endif %}>Participants</a>
-        <a href="/schedule" {% if request.path == '/schedule' %}class="active"{% endif %}>Schedule</a>
-        <a href="/master" {% if request.path == '/master' %}class="active"{% endif %}>Master Sheet</a>
+        <a href="/" class="admin-only-nav{% if request.path == '/' %} active{% endif %}">Home</a>
+        <a href="/import" class="admin-only-nav{% if request.path == '/import' %} active{% endif %}">Import CSV</a>
+        <a href="/admin" class="admin-only-nav{% if request.path == '/admin' %} active{% endif %}">Admin</a>
+        <a href="/log" class="admin-only-nav{% if request.path == '/log' %} active{% endif %}">Log</a>
+        <a href="/leaderboard" class="admin-only-nav{% if request.path == '/leaderboard' %} active{% endif %}">Leaderboard</a>
+        <a href="/participants" class="nav-yellow{% if request.path == '/participants' %} active{% endif %}">Participants</a>
+        <a href="/schedule" class="nav-yellow{% if request.path == '/schedule' %} active{% endif %}">Schedule</a>
+        <a href="/master" class="nav-yellow{% if request.path == '/master' %} active{% endif %}">Master Sheet</a>
+        <button id="admin-logout-btn" type="button" class="admin-only-nav nav-logout-btn" title="Log out admin mode">Admin Logout</button>
       </nav>
     </div>
   </header>
@@ -496,5 +533,43 @@
       {% block content %}{% endblock %}
     </section>
   </main>
+  <script>
+    (function () {
+      const logo = document.getElementById("admin-unlock-logo");
+      if (!logo) {
+        return;
+      }
+
+      function setAdminCookie() {
+        document.cookie = "is_admin=1; path=/; max-age=31536000; SameSite=Lax";
+        document.body.classList.add("is-admin");
+      }
+
+      logo.addEventListener("click", function (event) {
+        const rect = logo.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const starRadius = Math.min(rect.width, rect.height) * 0.22;
+
+        if (distance <= starRadius) {
+          setAdminCookie();
+        }
+      });
+
+      const adminLogoutBtn = document.getElementById("admin-logout-btn");
+      if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener("click", function () {
+          document.cookie = "is_admin=; path=/; max-age=0; SameSite=Lax";
+          document.body.classList.remove("is-admin");
+          window.location.href = "/schedule";
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

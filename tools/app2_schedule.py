@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-"""Generate, display, back up, and export the task schedule."""
+"""Generate, display, and export the task schedule."""
 
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from tabulate import tabulate
 
-from app4_web.services.schedule_service import (
-    ensure_single_lead,
+from web.services.schedule_service import (
     export_csv as export_csv_service,
-    refresh_backup_for_task,
-    refresh_backups as refresh_backups_service,
     run_schedule as run_schedule_service,
 )
 from models import Participant, Task, get_session
@@ -20,11 +23,6 @@ from roster_logic import compute_total_points
 
 def run_schedule(session, keep_existing: bool = False):
     for message in run_schedule_service(session, keep_existing=keep_existing):
-        print(message)
-
-
-def refresh_backups(session):
-    for message in refresh_backups_service(session):
         print(message)
 
 
@@ -74,7 +72,6 @@ def build_parser():
     export_parser = sub.add_parser("export", help="Export the schedule to CSV files.")
     export_parser.add_argument("--output", metavar="DIR", default="./exports", help="Directory for CSV output.")
 
-    sub.add_parser("backup", help="Refresh reserve assignments for all tasks.")
     return parser
 
 
@@ -89,8 +86,6 @@ def main():
             show_schedule(session)
         elif args.command == "export":
             export_csv(session, args.output)
-        elif args.command == "backup":
-            refresh_backups(session)
     finally:
         session.close()
 
