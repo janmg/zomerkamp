@@ -6,19 +6,8 @@
 {% set is_admin = request.cookies.get('is_admin') == '1' %}
 <style>
   .person-header { position: relative; }
-  .qr-btn {
-    background: none;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.3rem 0.4rem;
-    cursor: pointer;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    transition: background 0.15s, color 0.15s;
-    margin-left: 0.5rem;
-  }
-  .qr-btn:hover { background: var(--line); color: var(--ink); }
+  .qr-small { cursor: pointer; border-radius: 4px; display: block; margin-left: 0.5rem; }
+  .qr-small:hover { opacity: 0.75; }
   .name-filter-input {
     padding: 0.45rem 0.6rem;
     border: 1px solid #d0b24a;
@@ -57,9 +46,7 @@
     {% if is_admin %}
     <span class="pts">{{ person.total_points }} pts</span>
     {% endif %}
-    <button class="qr-btn" data-qr-url="{{ public_url }}/schedule?name={{ person.name|urlencode }}" title="Show QR code" aria-label="QR code for {{ person.name }}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
-    </button>
+    <canvas class="qr-small" data-qr-url="{{ public_url }}/schedule?name={{ person.name|urlencode }}" data-person-name="{{ person.name }}" width="48" height="48" title="Show QR code for {{ person.name }}"></canvas>
   </div>
 
   {% if person.tasks %}
@@ -165,11 +152,14 @@
     const qrName = document.getElementById("qr-name");
     const qrUrlLink = document.getElementById("qr-url-link");
 
-    document.querySelectorAll(".qr-btn").forEach(function (btn) {
-      btn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        const url = btn.dataset.qrUrl;
-        const name = btn.closest(".person-card").querySelector("strong").textContent;
+    document.querySelectorAll(".qr-small").forEach(function (canvas) {
+      QRCode.toCanvas(canvas, canvas.dataset.qrUrl, { width: 48, margin: 1 }, function () {});
+    });
+
+    document.querySelectorAll(".qr-small").forEach(function (canvas) {
+      canvas.addEventListener("click", function () {
+        const url = canvas.dataset.qrUrl;
+        const name = canvas.dataset.personName;
         qrName.textContent = name;
         qrUrlLink.href = url;
         qrUrlLink.textContent = url;
