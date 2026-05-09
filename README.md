@@ -231,3 +231,94 @@ The export flow writes three timestamped CSV files:
 - `web/services/` contains the shared business logic used by both web routes and CLI scripts.
 - `web/routes/` keeps Flask routes grouped by feature instead of putting all views in one file.
 - The CLI remains useful for scripting, while the browser now supports the same operational workflows.
+
+
+- Leiders op de eerste dag moeten ervaring hebben van vorig jaar OF instructie krijgen.
+- Nieuwe ‘leiders’ moeten de activiteit al een keer eerder gedaan hebben als helper
+- Avond activiteiten indien mogelijk ouders van oudere kinderen (geen noodzaak in de tent te blijven)
+- Aantal activiteiten ongeveer gelijk verdeeld onder de vrijwilligers (max 8 activiteiten over 4 dagen) 
+- Sommige mensen hebben beperkingen (e.g. Matthijs Serdijn doet liever zittend werk)
+- Voor sommige activiteiten is een rijbewijs / auto nodig (Boodschappen doen)
+- Voor kantine supervisie is het mooi om ouders te gebruiken wiens kind in de betreffende klas zit.
+- Als geen persoon gevonden wordt die beide vakken waarin een activiteit valt ingevuldt heeft, neem een persoon die één van de twee vakken ingevuld heeft.
+- Goeie variatie in de wc schoonmaak, niet tof als één persoon dat 4x op z’n bord krijgt ;) 
+- Cross-checken in welke groep een ouder een kind heeft, zodat die niet voor een activiteit ingeplanned wordt terwijl zijn of haar kind diploma uitreiking heeft.
+- We moeten taken als ‘groot' of ‘klein' labellen. Het was de afgelopen jaren onoverkomelijk mensen binnen een tijdsvak voor twee kleinere activiteiten in te plannen (maar twee grotere kan niet).
+
+x remove req, points, assigned
+beschrijving in een tooltip 
+kleine taken grote taken, niet twee grote taken achter elkaar moeten doen
+tijd indicatie, zodat je ongeveer weet hoe lang het duurt
+
+naschoolse activiteiten, leider van te voren kunnen informen
+wie er verder in zijn task zitten, met contact details
+signal, whatsapps, sms
+in the lead maak het clickable
+
+hide points
+list of tasks
+
+url, qr code
+als de tasks klaar zijn, uit het mastersheet verwijderen.
+alleen de een na laatste in grijs laten zien
+switch to full schedule
+
+diploma uitreiking ... op basis van survey, welke klassen hebben overlap... 2 uur uitrijking ...
+taken die gedaan moeten worden tijdens uitreiking (30 minuten) ... gedaan tijdens niet klas gerelateerde ouders.
+
+inzet voor mensen vroeg weg... 
+filmvertoning op einde met popcorn
+zodat ouders ook kunnen.
+
+bonte avond, disco, playback... 
+stukjes op einde... 
+
+samen eindvoorstelling als bovenbouw, per klas uitreiking.
+
+python app1_import.py --init-db
+python app2_schedule.py schedule
+python app2_schedule.py show
+python app2_schedule.py export
+
+
+cp /usr/src/zomerkamp/zomerkamp.initd /etc/init.d/zomerkamp
+chmod +x /etc/init.d/zomerkamp
+rc-update add zomerkamp default
+rc-service zomerkamp start
+
+
+Host 10.0.0.5
+  HostName 10.0.0.5
+  User jan
+  IdentityFile C:\Users\jan.ISLIEF\.ssh\janlocal
+  
+server {
+    listen 80;
+    server_name zomerkamp.janmg.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name zomerkamp.janmg.com;
+    ssl_certificate     /etc/letsencrypt/live/zomerkamp.janmg.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/zomerkamp.janmg.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    location / {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE assignments;
+TRUNCATE availability;
+TRUNCATE participants;
+SET FOREIGN_KEY_CHECKS = 1;

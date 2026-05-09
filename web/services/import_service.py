@@ -1,8 +1,9 @@
-"""CSV import helpers shared by CLI and web flows."""
+"""CSV and Excel import helpers shared by CLI and web flows."""
 
 from __future__ import annotations
 
 import csv
+import io
 from datetime import datetime, time as dt_time
 from pathlib import Path
 from typing import TextIO
@@ -271,3 +272,128 @@ def import_tasks_from_csv_path(csv_path: str, session) -> dict:
 def import_participants_from_csv_path(csv_path: str, session) -> dict:
     with Path(csv_path).open(newline="", encoding="utf-8-sig") as handle:
         return import_participants_from_handle(handle, session)
+
+
+def import_tasks_from_excel(file_bytes, session) -> dict:
+    """Import tasks from an Excel (.xlsx) workbook (bytes or file-like object).
+
+    Columns expected (Dutch headers):
+        Datum, Start, Eind, Taak, Hoofdverantwoordelijke, aantal medewerkers,
+        Informatie voor uitvoerenden, Grootte van taak, Locatie, Taak nummer,
+        Aantekeningen voor Jan
+    """
+    import openpyxl
+
+    imported = 0
+    skipped = 0
+    updated = 0
+    added = 0
+    warnings: list[str] = []
+
+    if hasattr(file_bytes, "read"):
+        file_bytes = file_bytes.read()
+    wb = openpyxl.load_workbook(io.BytesIO(file_bytes), data_only=True)
+    ws = wb.active
+
+    for row_number, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if len(row) < 11:
+            warnings.append(f"row {row_number}: too few columns, skipped")
+            skipped += 1
+            continue
+
+        datum, start, eind, taak, hoofdverantwoordelijke, aantal, info, grootte, locatie, taaknummer, aantekeningen = row[:11]
+
+        # Skip section-header rows (e.g. "WOENSDAG") where Datum is None
+        if datum is None:
+            continue
+        if not taak:
+            skipped += 1
+            continue
+
+        try:
+            # Map date to day index: Wednesday(weekday=2)→1, Thursday→2, Friday→3, Saturday→4
+            if not hasattr(datum, "weekday"):
+                warnings.append(f"row {row_number}: unexpected Datum type {type(datum).__name__}, skipped")
+                skipped += 1
+                continue
+            day = datum.weekday() - 1  # Wednesday=2 → day 1
+            if day < 1 or day > EVENT_DAYS:
+                warnings.append(f"row {row_number}: date {datum.date()} maps to day {day} which is out of range 1-{EVENT_DAYS}, skipped")
+                skipped += 1
+                continue
+
+            if not isinstance(start, dt_time):
+                warnings.append(f"row {row_number}: invalid Start value {start!r}, skipped")
+                skipped += 1
+                continue
+            if not isinstance(eind, dt_time):
+                warnings.append(f"row {row_number}: invalid Eind value {eind!r}, skipped")
+                skipped += 1
+                continue
+
+            task_name = str(taak).strip()
+            people_required = int(aantal) if aantal is not None else 1
+            task_number = int(taaknummer) if taaknummer is not None else None
+            lead_name = str(hoofdverantwoordelijke).strip() if hoofdverantwoordelijke is not None else None
+            description = str(info).strip() if info is not None else None
+            size = str(grootte).strip() if grootte is not None else None
+            location_val = str(locatie).strip() if locatie is not None else None
+            task_notes_val = str(aantekeningen).strip() if aantekeningen is not None else None
+
+        except (ValueError, TypeError) as exc:
+            warnings.append(f"row {row_number} skipped - {exc}")
+            skipped += 1
+            continue
+
+        time_block = infer_time_block(start, eind)
+
+        # Look up by task_number first, then fall back to name/day/begin_time
+        existing = None
+        if task_number is not None:
+            existing = session.query(Task).filter_by(task_number=task_number).first()
+        if existing is None:
+            existing = session.query(Task).filter_by(name=task_name, day=day, begin_time=start).first()
+
+        if existing:
+            existing.end_time = eind
+            existing.people_required = people_required
+            existing.time_block = time_block
+            existing.task_number = task_number
+            existing.lead_name = lead_name
+            existing.description = description
+            existing.size = size
+            existing.location = location_val
+            existing.task_notes = task_notes_val
+            updated += 1
+        else:
+            session.add(Task(
+                name=task_name,
+                day=day,
+                begin_time=start,
+                end_time=eind,
+                points=1,
+                people_required=people_required,
+                time_block=time_block,
+                task_number=task_number,
+                lead_name=lead_name,
+                description=description,
+                size=size,
+                location=location_val,
+                task_notes=task_notes_val,
+            ))
+            added += 1
+        imported += 1
+
+    session.commit()
+    return {
+        "imported": imported,
+        "skipped": skipped,
+        "added": added,
+        "updated": updated,
+        "warnings": warnings,
+    }
+
+
+def import_tasks_from_excel_path(xlsx_path: str, session) -> dict:
+    with open(xlsx_path, "rb") as f:
+        return import_tasks_from_excel(f.read(), session)

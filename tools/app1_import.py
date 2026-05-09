@@ -11,12 +11,19 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from web.services.import_service import import_participants_from_csv_path, import_tasks_from_csv_path
+from web.services.import_service import (
+    import_participants_from_csv_path,
+    import_tasks_from_csv_path,
+    import_tasks_from_excel_path,
+)
 from models import get_session, init_db
 
 
-def import_tasks(csv_path: str, session) -> int:
-    summary = import_tasks_from_csv_path(csv_path, session)
+def import_tasks(path: str, session) -> int:
+    if path.lower().endswith(".xlsx"):
+        summary = import_tasks_from_excel_path(path, session)
+    else:
+        summary = import_tasks_from_csv_path(path, session)
     print(
         f"\nTasks: {summary['imported']} processed, {summary['skipped']} skipped "
         f"({summary['added']} added, {summary['updated']} updated).\n"
@@ -39,7 +46,7 @@ def import_participants(csv_path: str, session) -> int:
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Import tasks and participants from CSV files.")
-    parser.add_argument("--tasks", metavar="CSV", help="Path to tasks CSV file.")
+    parser.add_argument("--tasks", metavar="FILE", help="Path to tasks Excel (.xlsx) or CSV file.")
     parser.add_argument("--participants", metavar="CSV", help="Path to participants CSV file.")
     parser.add_argument("--init-db", action="store_true", dest="init_db", help="Create database tables and exit.")
     return parser

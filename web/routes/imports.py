@@ -7,7 +7,11 @@ import io
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from models import get_session
-from web.services.import_service import import_participants_from_handle, import_tasks_from_handle
+from web.services.import_service import (
+    import_participants_from_handle,
+    import_tasks_from_excel,
+    import_tasks_from_handle,
+)
 
 import_bp = Blueprint("imports", __name__)
 
@@ -23,10 +27,14 @@ def upload():
         session = get_session()
         try:
             if action == "upload-tasks":
-                tasks_file = request.files.get("tasks_csv")
+                tasks_file = request.files.get("tasks_file")
                 if tasks_file and tasks_file.filename:
-                    with _open_uploaded_text(tasks_file) as handle:
-                        summary = import_tasks_from_handle(handle, session)
+                    filename = tasks_file.filename.lower()
+                    if filename.endswith(".xlsx"):
+                        summary = import_tasks_from_excel(tasks_file.stream, session)
+                    else:
+                        with _open_uploaded_text(tasks_file) as handle:
+                            summary = import_tasks_from_handle(handle, session)
                     flash(
                         f"Tasks: {summary['imported']} processed, {summary['skipped']} skipped ({summary['added']} added, {summary['updated']} updated).",
                         "success",
@@ -34,7 +42,7 @@ def upload():
                     for warning in summary["warnings"]:
                         flash(f"Task import warning: {warning}", "warning")
                 else:
-                    flash("Select a tasks CSV file to upload.", "warning")
+                    flash("Select a tasks file (.xlsx or .csv) to upload.", "warning")
 
             elif action == "upload-participants":
                 participants_file = request.files.get("participants_csv")

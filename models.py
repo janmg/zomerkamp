@@ -122,6 +122,12 @@ class Task(Base):
     points = Column(Integer, nullable=False, default=1)
     people_required = Column(Integer, nullable=False, default=1)
     time_block = Column(Enum(*TIME_BLOCKS, name="time_block_enum"), nullable=False)
+    task_number = Column(Integer, nullable=True, unique=True, index=True)
+    lead_name = Column(String(200), nullable=True)
+    description = Column(Text, nullable=True)
+    size = Column(String(50), nullable=True)
+    location = Column(String(200), nullable=True)
+    task_notes = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     assignments = relationship("Assignment", back_populates="task", cascade="all, delete-orphan")
@@ -271,4 +277,27 @@ def init_db():
                 conn.commit()
             except Exception:
                 pass  # Column already exists
+        task_column_defs = {
+            "task_number": "INT NULL",
+            "lead_name": "VARCHAR(200) NULL",
+            "description": "TEXT NULL",
+            "size": "VARCHAR(50) NULL",
+            "location": "VARCHAR(200) NULL",
+            "task_notes": "TEXT NULL",
+        }
+        for column_name, sql_type in task_column_defs.items():
+            try:
+                conn.execute(text(
+                    f"ALTER TABLE tasks ADD COLUMN `{column_name}` {sql_type}"
+                ))
+                conn.commit()
+            except Exception:
+                pass  # Column already exists
+        try:
+            conn.execute(text(
+                "ALTER TABLE tasks ADD UNIQUE INDEX uq_task_number (task_number)"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Index already exists
     print("Database tables created (or already exist).")
