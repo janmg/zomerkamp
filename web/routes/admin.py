@@ -142,6 +142,7 @@ def admin_panel():
         session.close()
 
     replacement_modal = flask_session.pop("replacement_modal", None)
+    from config import SMS_ENABLED
 
     return render_template(
         "admin.html",
@@ -153,6 +154,7 @@ def admin_panel():
         day_filter=day_filter,
         replacement_modal=replacement_modal,
         summary=summary,
+        sms_enabled=SMS_ENABLED,
     )
 
 
@@ -160,6 +162,22 @@ def _csv_response(filename: str, content: str) -> Response:
     response = Response(content, mimetype="text/csv")
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@admin_bp.route("/admin/sms/task/<int:task_id>", methods=["POST"])
+def sms_task(task_id: int):
+    import json
+    from web.services.sms_service import send_task_reminders
+    results = send_task_reminders(task_id)
+    return Response(json.dumps(results), mimetype="application/json")
+
+
+@admin_bp.route("/admin/sms/all", methods=["POST"])
+def sms_all():
+    import json
+    from web.services.sms_service import send_all_reminders
+    results = send_all_reminders()
+    return Response(json.dumps(results), mimetype="application/json")
 
 
 @admin_bp.route("/admin/recalculate/stream")

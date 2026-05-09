@@ -280,6 +280,7 @@
       <th>Req</th>
       <th>Lead</th>
       <th>Helpers</th>
+      {% if sms_enabled %}<th>SMS</th>{% endif %}
     </tr>
   </thead>
   <tbody>
@@ -294,12 +295,46 @@
       <td>{{ row.required }}</td>
       <td>{{ row.lead }}</td>
       <td>{{ row.helpers }}</td>
+      {% if sms_enabled %}
+      <td><button type="button" class="sms-task-btn" data-task-id="{{ row.id }}" data-task-name="{{ row.name }}" disabled style="font-size:0.78rem; padding:0.25rem 0.5rem;">Send SMS</button></td>
+      {% endif %}
     </tr>
     {% else %}
-    <tr><td colspan="9" class="empty">No tasks found.</td></tr>
+    <tr><td colspan="{% if sms_enabled %}10{% else %}9{% endif %}" class="empty">No tasks found.</td></tr>
     {% endfor %}
   </tbody>
 </table>
+
+{% if sms_enabled %}
+<div class="card" style="margin-top:1rem; border:2px solid #f57c00; background:#fff8f0;">
+  <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+    <div>
+      <strong style="color:#e65100;">SMS Reminders</strong>
+      <span class="quiet" style="margin-left:0.5rem; font-size:0.82rem;">Sends a Dutch SMS via Twilio to each assigned participant</span>
+    </div>
+    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin-left:auto;">
+      <span style="font-size:0.85rem; font-weight:600;">Enable sending</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="sms-enable-toggle">
+        <span class="toggle-track"></span>
+      </label>
+    </label>
+    <button type="button" id="sms-all-btn" disabled style="background:#e65100; color:#fff; border-color:#e65100;">Send to all tasks</button>
+  </div>
+</div>
+
+<!-- SMS result overlay -->
+<div id="sms-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1400; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:16px; padding:1.5rem; width:min(560px,92vw); max-height:80vh; overflow:auto; box-shadow:0 8px 32px rgba(0,0,0,0.25); position:relative;">
+    <button id="sms-overlay-close" style="position:absolute; top:0.75rem; right:0.75rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#555;">&times;</button>
+    <div style="font-weight:700; font-size:1.05rem; margin-bottom:0.75rem;">SMS Results</div>
+    <table style="width:100%; font-size:0.85rem;">
+      <thead><tr><th>Name</th><th>Phone</th><th>Status</th></tr></thead>
+      <tbody id="sms-results-body"></tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
 
 <script>
 (function () {
@@ -377,6 +412,64 @@
       recalcMsg.textContent = "Error — see server logs.";
     };
   });
+
+  // SMS
+  const smsToggle = document.getElementById("sms-enable-toggle");
+  const smsAllBtn = document.getElementById("sms-all-btn");
+  const smsOverlay = document.getElementById("sms-overlay");
+  const smsClose = document.getElementById("sms-overlay-close");
+  const smsBody = document.getElementById("sms-results-body");
+  const smsTaskBtns = document.querySelectorAll(".sms-task-btn");
+
+  if (smsToggle) {
+    smsToggle.addEventListener("change", function () {
+      const on = smsToggle.checked;
+      if (smsAllBtn) smsAllBtn.disabled = !on;
+      smsTaskBtns.forEach(function (b) { b.disabled = !on; });
+    });
+
+    function showSmsResults(results) {
+      smsBody.innerHTML = "";
+      results.forEach(function (r) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.name}</td><td>${r.phone}</td><td style="color:${r.ok ? 'green' : '#c62828'}">${r.ok ? '✓ Sent' : '✗ ' + (r.error || 'Failed')}</td>`;
+        smsBody.appendChild(tr);
+      });
+      smsOverlay.style.display = "flex";
+    }
+
+    function sendSms(url, btn) {
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      fetch(url, { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { showSmsResults(data); })
+        .catch(function (e) { showSmsResults([{ name: "-", phone: "-", ok: false, error: String(e) }]); })
+        .finally(function () {
+          btn.textContent = btn.dataset.taskId ? "Send SMS" : "Send to all tasks";
+          btn.disabled = !smsToggle.checked;
+        });
+    }
+
+    smsTaskBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (!confirm("Send SMS reminder to all participants of task '" + btn.dataset.taskName + "'?")) return;
+        sendSms("/admin/sms/task/" + btn.dataset.taskId, btn);
+      });
+    });
+
+    if (smsAllBtn) {
+      smsAllBtn.addEventListener("click", function () {
+        if (!confirm("Send SMS reminders to ALL participants for ALL tasks? This will cost real money.")) return;
+        sendSms("/admin/sms/all", smsAllBtn);
+      });
+    }
+
+    if (smsClose) {
+      smsClose.addEventListener("click", function () { smsOverlay.style.display = "none"; });
+      smsOverlay.addEventListener("click", function (e) { if (e.target === smsOverlay) smsOverlay.style.display = "none"; });
+    }
+  }
 })();
 </script>
 {% endblock %}
