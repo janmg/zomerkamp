@@ -133,6 +133,7 @@ CREATE TABLE unavailabilities (
     day            INT  NULL,
     all_days       TINYINT(1) NOT NULL DEFAULT 0,
     reason         TEXT NULL,
+    replacements   TEXT NULL,
     created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT fk_unavail_participant FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,

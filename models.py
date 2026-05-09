@@ -198,6 +198,7 @@ class Unavailability(Base):
     day = Column(Integer, nullable=True)
     all_days = Column(Boolean, default=False)
     reason = Column(Text, nullable=True)
+    replacements = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     participant = relationship("Participant", back_populates="unavailabilities")
@@ -300,4 +301,11 @@ def init_db():
             conn.commit()
         except Exception:
             pass  # Index already exists
+        try:
+            conn.execute(text(
+                "ALTER TABLE unavailabilities ADD COLUMN `replacements` TEXT NULL"
+            ))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
     print("Database tables created (or already exist).")
