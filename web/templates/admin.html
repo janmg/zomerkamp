@@ -167,6 +167,7 @@
       <th>Scope</th>
       <th>Task</th>
       <th>Reason</th>
+      <th>Replacements</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -178,6 +179,7 @@
       <td>{{ row.scope }}</td>
       <td>{{ row.task }}</td>
       <td>{{ row.reason }}</td>
+      <td>{{ row.replacements }}</td>
       <td>
         <form method="post" style="margin: 0;">
           <input type="hidden" name="action" value="remove-unavailable">
@@ -187,7 +189,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="6" class="empty">No unavailability records.</td></tr>
+    <tr><td colspan="7" class="empty">No unavailability records.</td></tr>
     {% endfor %}
   </tbody>
 </table>

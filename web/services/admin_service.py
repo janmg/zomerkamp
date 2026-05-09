@@ -132,6 +132,7 @@ def list_unavailable(session) -> list[dict]:
                 "scope": scope,
                 "task": record.task.name if record.task else "-",
                 "reason": record.reason or "-",
+                "replacements": record.replacements or "-",
                 "created": record.created_at or datetime.min,
             }
         )
@@ -289,6 +290,14 @@ def set_unavailable(
                 "required": task.people_required,
             }
         )
+
+    # Build a compact replacement summary and persist it on the unavailability record
+    replacement_parts: list[str] = []
+    for task in unique_tasks:
+        names = replacements_by_task.get(task.id, [])
+        if names:
+            replacement_parts.append(f"{task.name}: {', '.join(names)}")
+    record.replacements = "; ".join(replacement_parts) if replacement_parts else None
 
     session.commit()
     message = f"{participant.name} marked unavailable for {scope}."

@@ -69,7 +69,11 @@
         <td>
           {% if task.lead %}
             <div><a href="/schedule?name={{ task.lead.participant.name|urlencode }}">{{ task.lead.participant.name }}</a></div>
-            {% if task.lead.participant.phone %}<div class="quiet">{{ messaging_icon(task.lead.participant.messaging or 'whatsapp') }} {{ task.lead.participant.phone }}</div>{% endif %}
+            {% if task.lead.participant.phone %}
+            {% set _wa_phone = task.lead.participant.phone | replace('+', '') | replace(' ', '') | replace('-', '') %}
+            {% set _wa_msg = 'Hi ' ~ task.lead.participant.name ~ ', you are the lead for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
+            <div class="quiet">{{ messaging_icon(task.lead.participant.messaging or 'whatsapp') }} <a href="https://wa.me/{{ _wa_phone }}?text={{ _wa_msg | urlencode }}" target="_blank" rel="noopener">{{ task.lead.participant.phone }}</a></div>
+            {% endif %}
           {% else %}
             <span class="quiet">-</span>
           {% endif %}
@@ -77,7 +81,9 @@
         <td>
           {% if task.helpers %}
             {% for helper in task.helpers %}
-            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ messaging_icon(helper.participant.messaging or 'whatsapp') }} {{ helper.participant.phone }}</span>{% endif %}</div>
+            {% set _wa_phone = helper.participant.phone | replace('+', '') | replace(' ', '') | replace('-', '') if helper.participant.phone else '' %}
+            {% set _wa_msg = 'Hi ' ~ helper.participant.name ~ ', you are a helper for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
+            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ messaging_icon(helper.participant.messaging or 'whatsapp') }} <a href="https://wa.me/{{ _wa_phone }}?text={{ _wa_msg | urlencode }}" target="_blank" rel="noopener">{{ helper.participant.phone }}</a></span>{% endif %}</div>
             {% endfor %}
           {% else %}
             <span class="quiet">-</span>

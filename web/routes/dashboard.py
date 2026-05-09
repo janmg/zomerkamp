@@ -163,4 +163,5 @@ def participants():
     finally:
         session.close()
 
-    return render_template("participants.html", people=people, messaging_apps=MESSAGING_APPS, groups=GROUPS)
+    from config import PUBLIC_URL
+    return render_template("participants.html", people=people, messaging_apps=MESSAGING_APPS, groups=GROUPS, public_url=PUBLIC_URL)
