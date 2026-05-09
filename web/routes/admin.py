@@ -102,6 +102,10 @@ def admin_panel():
                     task_id = _to_int(request.form.get("task_id"), "Task id")
                     person = (request.form.get("person") or "").strip()
                     flash(admin_service.remove_assignment(session, task_id, person), "success")
+                elif action == "add-helper":
+                    task_id = _to_int(request.form.get("task_id"), "Task id")
+                    person = (request.form.get("person") or "").strip()
+                    flash(admin_service.add_helper(session, task_id, person), "success")
                 elif action == "recalculate":
                     messages = run_schedule(session, keep_existing=False)
                     session.commit()

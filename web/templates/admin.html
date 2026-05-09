@@ -25,7 +25,7 @@
   <a href="/admin/download/per-person" style="display: flex;"><button type="button" style="width: 100%;">Download Per Person</button></a>
   <a href="/admin/download/schedule" style="display: flex;"><button type="button" style="width: 100%;">Download Schedule</button></a>
   <a href="/admin/download/points" style="display: flex;"><button type="button" style="width: 100%;">Download Points</button></a>
-  <button type="button" id="recalculate-btn" style="width: 100%;">Recalculate Schedule</button>
+  <button type="button" id="recalculate-btn" style="width: 100%; background:#c62828; color:#fff; border-color:#c62828;">Recalculate Schedule</button>
 </div>
 
 <!-- Recalculate progress overlay -->
@@ -137,7 +137,7 @@
         </div>
         <div>
           <label for="lead_person">Participant</label>
-          <input id="lead_person" name="person" required>
+          <input id="lead_person" name="person" placeholder="partial name allowed" required>
         </div>
         <div style="align-self: end;"><button type="submit">Set Lead</button></div>
       </form>
@@ -158,9 +158,30 @@
         </div>
         <div>
           <label for="remove_person">Participant</label>
-          <input id="remove_person" name="person" required>
+          <input id="remove_person" name="person" placeholder="partial name allowed" required>
         </div>
         <div style="align-self: end;"><button type="submit">Remove Assignment</button></div>
+      </form>
+
+      <form method="post" class="form-grid">
+        <input type="hidden" name="action" value="add-helper">
+        <div>
+          <label for="helper_task_id">Task</label>
+          <select id="helper_task_id" name="task_id" required>
+            {% if task_options %}
+            {% for task in task_options %}
+            <option value="{{ task.id }}">[#{{ task.id }}] {{ task.day_name }} {{ task.time }} - {{ task.name }}</option>
+            {% endfor %}
+            {% else %}
+            <option value="">No upcoming tasks</option>
+            {% endif %}
+          </select>
+        </div>
+        <div>
+          <label for="helper_person">Participant</label>
+          <input id="helper_person" name="person" placeholder="partial name allowed" required>
+        </div>
+        <div style="align-self: end;"><button type="submit">Add as Helper</button></div>
       </form>
 
     </div>

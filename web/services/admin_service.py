@@ -409,3 +409,30 @@ def remove_assignment(session, task_id: int, person_query: str) -> str:
 
 def refresh_backup(session, task_id: int) -> str:
     raise ValueError("Precomputed replacements are disabled. Replacements are assigned automatically when someone becomes unavailable.")
+
+
+def add_helper(session, task_id: int, person_query: str) -> str:
+    task = find_task(session, task_id)
+    if task is None:
+        raise ValueError(f"Task id {task_id} not found.")
+    participant = find_participant(session, person_query)
+    if participant is None:
+        raise ValueError(f"Participant not found: {person_query!r}")
+    existing = session.query(Assignment).filter_by(task_id=task.id, participant_id=participant.id).first()
+    if existing is not None:
+        raise ValueError(f"{participant.name} is already assigned to '{task.name}' as {existing.role}.")
+    session.add(Assignment(
+        task_id=task.id,
+        participant_id=participant.id,
+        role="helper",
+        points_awarded=task.points,
+    ))
+    _add_log(
+        session,
+        f"{participant.name} added as helper for {_format_task_scope(task)}.",
+        category="assignment",
+        participant_id=participant.id,
+        task_id=task.id,
+    )
+    session.commit()
+    return f"{participant.name} added as helper for '{task.name}' day {task.day}."

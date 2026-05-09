@@ -38,6 +38,12 @@
 <h2>Participants</h2>
 <p class="intro">Contact list with messaging preferences.</p>
 
+<div class="meta" style="margin-bottom: 0.75rem; align-items: center; gap: 0.5rem;">
+  <label for="p-filter"><strong>Filter:</strong></label>
+  <input id="p-filter" type="search" placeholder="Search name, phone or email…" autocomplete="off" style="padding:0.4rem 0.6rem; border:1px solid var(--line); border-radius:8px; min-width:240px;">
+  <span id="p-filter-status" class="quiet" style="font-size:0.82rem;"></span>
+</div>
+
 <div class="card" style="padding: 0; overflow: hidden;">
   <table class="participants-table">
     <thead>
@@ -51,7 +57,7 @@
     </thead>
     <tbody>
       {% for person in people %}
-      <tr data-person-id="{{ person.id }}" data-messaging="{{ person.messaging or 'whatsapp' }}">
+      <tr data-person-id="{{ person.id }}" data-messaging="{{ person.messaging or 'whatsapp' }}" data-search="{{ person.name|lower }} {{ person.phone or '' }} {{ person.email|lower }}">
         <td><strong>{{ person.name }}</strong></td>
         <td>
           <div class="group-balls" data-person-id="{{ person.id }}">
@@ -66,7 +72,22 @@
             <button type="button" class="msg-icon-btn" title="Click to change messaging app">
               {{ messaging_icon(person.messaging or 'whatsapp') }}
             </button>
-            <span>{{ person.phone }}</span>
+            {% if person.phone %}
+            {% set _app = person.messaging or 'whatsapp' %}
+            {% set _digits = person.phone | replace('+', '') | replace(' ', '') | replace('-', '') %}
+            {% if _app == 'telegram' %}
+            {% set _href = 'https://t.me/+' ~ _digits %}
+            {% elif _app == 'signal' %}
+            {% set _href = 'https://signal.me/#p/+' ~ _digits %}
+            {% elif _app == 'sms' %}
+            {% set _href = 'sms:+' ~ _digits %}
+            {% else %}
+            {% set _href = 'https://wa.me/' ~ _digits %}
+            {% endif %}
+            <a href="{{ _href }}" target="_blank" rel="noopener" class="phone-link">{{ person.phone }}</a>
+            {% else %}
+            <span>-</span>
+            {% endif %}
             <span class="saved-flash">✓</span>
           </div>
         </td>
@@ -122,6 +143,14 @@
     });
   }
 
+  function msgUrl(app, phone) {
+    const digits = phone.replace(/[\s+\-]/g, "");
+    if (app === "telegram") return "https://t.me/+" + digits;
+    if (app === "signal") return "https://signal.me/#p/+" + digits;
+    if (app === "sms") return "sms:+" + digits;
+    return "https://wa.me/" + digits;
+  }
+
   // Messaging icon: click to cycle
   document.querySelectorAll(".msg-icon-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -131,6 +160,11 @@
       const next = CYCLE[(idx + 1) % CYCLE.length];
       row.dataset.messaging = next;
       btn.innerHTML = ICONS[next] || "";
+      const link = row.querySelector(".phone-link");
+      if (link) {
+        const phone = link.textContent.trim();
+        link.href = msgUrl(next, phone);
+      }
       save(row, next, getGroup(row));
     });
   });
@@ -174,6 +208,21 @@
   qrClose.addEventListener("click", closeOverlay);
   overlay.addEventListener("click", function (e) { if (e.target === overlay) closeOverlay(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeOverlay(); });
+
+  // Name / phone / email filter
+  const filterInput = document.getElementById("p-filter");
+  const filterStatus = document.getElementById("p-filter-status");
+  const allRows = Array.from(document.querySelectorAll("tr[data-search]"));
+  filterInput.addEventListener("input", function () {
+    const q = filterInput.value.trim().toLowerCase();
+    let visible = 0;
+    allRows.forEach(function (row) {
+      const match = !q || (row.dataset.search || "").includes(q);
+      row.style.display = match ? "" : "none";
+      if (match) visible++;
+    });
+    filterStatus.textContent = q ? visible + " match" + (visible === 1 ? "" : "es") : "";
+  });
 })();
 </script>
 {% endblock %}
