@@ -25,10 +25,19 @@
   <a href="/admin/download/per-person" style="display: flex;"><button type="button" style="width: 100%;">Download Per Person</button></a>
   <a href="/admin/download/schedule" style="display: flex;"><button type="button" style="width: 100%;">Download Schedule</button></a>
   <a href="/admin/download/points" style="display: flex;"><button type="button" style="width: 100%;">Download Points</button></a>
-  <form method="post" style="display: flex;">
-    <input type="hidden" name="action" value="recalculate">
-    <button type="submit" style="width: 100%;">Recalculate Schedule</button>
-  </form>
+  <button type="button" id="recalculate-btn" style="width: 100%;">Recalculate Schedule</button>
+</div>
+
+<!-- Recalculate progress overlay -->
+<div id="recalc-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1300; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:16px; padding:2rem; width:min(420px,92vw); box-shadow:0 8px 32px rgba(0,0,0,0.25); text-align:center;">
+    <div style="font-weight:700; font-size:1.1rem; margin-bottom:1rem;">Recalculating Schedule…</div>
+    <div style="font-size:2rem; font-weight:800; color:var(--accent); margin-bottom:0.5rem;" id="recalc-count">0 / 0</div>
+    <div style="background:var(--line); border-radius:999px; height:8px; overflow:hidden; margin-bottom:1rem;">
+      <div id="recalc-bar" style="height:100%; width:0%; background:var(--accent); transition:width 0.2s;"></div>
+    </div>
+    <div class="quiet" id="recalc-msg" style="font-size:0.82rem; min-height:1.2em;"></div>
+  </div>
 </div>
 
 {% if replacement_modal %}
@@ -308,6 +317,45 @@
       }
     });
   }
+
+  // Recalculate with live progress
+  const recalcBtn = document.getElementById("recalculate-btn");
+  const recalcOverlay = document.getElementById("recalc-overlay");
+  const recalcCount = document.getElementById("recalc-count");
+  const recalcBar = document.getElementById("recalc-bar");
+  const recalcMsg = document.getElementById("recalc-msg");
+
+  recalcBtn.addEventListener("click", function () {
+    recalcOverlay.style.display = "flex";
+    recalcBtn.disabled = true;
+    recalcCount.textContent = "0 / ?";
+    recalcBar.style.width = "0%";
+    recalcMsg.textContent = "";
+
+    const es = new EventSource("/admin/recalculate/stream");
+    es.onmessage = function (e) {
+      const d = JSON.parse(e.data);
+      recalcMsg.textContent = d.msg;
+      if (d.total > 0) {
+        recalcCount.textContent = d.assigned + " / " + d.total;
+        recalcBar.style.width = Math.round((d.assigned / d.total) * 100) + "%";
+      }
+      if (d.assigned >= d.total && d.total > 0) {
+        es.close();
+        setTimeout(function () {
+          recalcOverlay.style.display = "none";
+          recalcBtn.disabled = false;
+          window.location.reload();
+        }, 900);
+      }
+    };
+    es.onerror = function () {
+      es.close();
+      recalcOverlay.style.display = "none";
+      recalcBtn.disabled = false;
+      recalcMsg.textContent = "Error — see server logs.";
+    };
+  });
 })();
 </script>
 {% endblock %}

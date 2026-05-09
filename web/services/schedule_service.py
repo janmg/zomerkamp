@@ -39,6 +39,63 @@ def remove_backup_assignments_for_task(session, task: Task) -> None:
     session.flush()
 
 
+def run_schedule_stream(session, keep_existing: bool = False):
+    """Generator that yields (assigned, total, message) progress tuples."""
+    if not keep_existing:
+        clear_assignments(session)
+
+    tasks = session.query(Task).order_by(Task.day, Task.begin_time, Task.name).all()
+    participants = session.query(Participant).all()
+    total = len(tasks)
+
+    if not tasks:
+        yield (0, 0, "No tasks found in the database.")
+        return
+    if not participants:
+        yield (0, 0, "No participants found in the database.")
+        return
+
+    yield (0, total, f"Scheduling {total} task(s) across {len(participants)} participant(s).")
+
+    for idx, task in enumerate(tasks, start=1):
+        remove_backup_assignments_for_task(session, task)
+        active_assignments = [a for a in task.assignments if a.role in {"lead", "helper"}]
+        assigned_ids = {a.participant_id for a in task.assignments}
+        open_slots = task.people_required - len(active_assignments)
+
+        if open_slots > 0:
+            initial_candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
+            if len(initial_candidates) < open_slots:
+                yield (idx - 1, total, f"Task '{task.name}' day {task.day}: only {len(active_assignments) + len(initial_candidates)}/{task.people_required} available.")
+            lead_exists = any(a.role == "lead" for a in active_assignments)
+            for _ in range(max(open_slots, 0)):
+                candidates = eligible_candidates(session, task, excluded_ids=assigned_ids)
+                if not candidates:
+                    break
+                participant = candidates[0]
+                role = "helper" if lead_exists else "lead"
+                session.add(Assignment(
+                    task_id=task.id,
+                    participant_id=participant.id,
+                    role=role,
+                    points_awarded=task.points,
+                ))
+                session.flush()
+                assigned_ids.add(participant.id)
+                lead_exists = True
+
+        remove_backup_assignments_for_task(session, task)
+        ensure_single_lead(session, task)
+        session.commit()
+
+        refreshed = session.get(Task, task.id)
+        lead = next((a.participant.name for a in refreshed.assignments if a.role == "lead"), "-")
+        helpers = [a.participant.name for a in refreshed.assignments if a.role == "helper"]
+        yield (idx, total, f"Task '{refreshed.name}' day {refreshed.day}: lead={lead}, helpers={helpers or '-'}")
+
+    yield (total, total, "Schedule generated successfully.")
+
+
 def run_schedule(session, keep_existing: bool = False) -> list[str]:
     messages: list[str] = []
     if not keep_existing:

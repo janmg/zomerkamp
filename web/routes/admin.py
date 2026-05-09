@@ -13,7 +13,7 @@ from flask import Blueprint, Response, flash, redirect, render_template, request
 
 from models import Participant, Task, get_session
 from web.services import admin_service
-from web.services.schedule_service import generate_per_person_csv, generate_points_csv, generate_schedule_csv, run_schedule
+from web.services.schedule_service import generate_per_person_csv, generate_points_csv, generate_schedule_csv, run_schedule, run_schedule_stream
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -156,6 +156,26 @@ def _csv_response(filename: str, content: str) -> Response:
     response = Response(content, mimetype="text/csv")
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@admin_bp.route("/admin/recalculate/stream")
+def recalculate_stream():
+    import json
+
+    def generate():
+        session = get_session()
+        try:
+            for assigned, total, msg in run_schedule_stream(session, keep_existing=False):
+                payload = json.dumps({"assigned": assigned, "total": total, "msg": msg})
+                yield f"data: {payload}\n\n"
+        finally:
+            session.close()
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @admin_bp.route("/admin/download/schedule")
