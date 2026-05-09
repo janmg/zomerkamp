@@ -4,6 +4,21 @@
 {% block content %}
 {% set day_names = {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday"} %}
 
+{# Macro: returns the correct deep-link URL for a given messaging app, phone and message #}
+{% macro msg_url(app, phone, text) %}
+{%- set digits = phone | replace('+', '') | replace(' ', '') | replace('-', '') -%}
+{%- set plus_phone = '+' ~ digits -%}
+{%- if app == 'telegram' -%}
+https://t.me/+{{ digits }}
+{%- elif app == 'signal' -%}
+https://signal.me/#p/{{ plus_phone }}
+{%- elif app == 'sms' -%}
+sms:{{ plus_phone }}?body={{ text | urlencode }}
+{%- else -%}
+https://wa.me/{{ digits }}?text={{ text | urlencode }}
+{%- endif -%}
+{% endmacro %}
+
 <style>
   .master-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.25rem; }
   .master-tools { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
@@ -70,9 +85,9 @@
           {% if task.lead %}
             <div><a href="/schedule?name={{ task.lead.participant.name|urlencode }}">{{ task.lead.participant.name }}</a></div>
             {% if task.lead.participant.phone %}
-            {% set _wa_phone = task.lead.participant.phone | replace('+', '') | replace(' ', '') | replace('-', '') %}
-            {% set _wa_msg = 'Hi ' ~ task.lead.participant.name ~ ', you are the lead for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
-            <div class="quiet">{{ messaging_icon(task.lead.participant.messaging or 'whatsapp') }} <a href="https://wa.me/{{ _wa_phone }}?text={{ _wa_msg | urlencode }}" target="_blank" rel="noopener">{{ task.lead.participant.phone }}</a></div>
+            {% set _app = task.lead.participant.messaging or 'whatsapp' %}
+            {% set _msg = 'Hi ' ~ task.lead.participant.name ~ ', you are the lead for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
+            <div class="quiet">{{ messaging_icon(_app) }} <a href="{{ msg_url(_app, task.lead.participant.phone, _msg) | trim }}" target="_blank" rel="noopener">{{ task.lead.participant.phone }}</a></div>
             {% endif %}
           {% else %}
             <span class="quiet">-</span>
@@ -81,9 +96,9 @@
         <td>
           {% if task.helpers %}
             {% for helper in task.helpers %}
-            {% set _wa_phone = helper.participant.phone | replace('+', '') | replace(' ', '') | replace('-', '') if helper.participant.phone else '' %}
-            {% set _wa_msg = 'Hi ' ~ helper.participant.name ~ ', you are a helper for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
-            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ messaging_icon(helper.participant.messaging or 'whatsapp') }} <a href="https://wa.me/{{ _wa_phone }}?text={{ _wa_msg | urlencode }}" target="_blank" rel="noopener">{{ helper.participant.phone }}</a></span>{% endif %}</div>
+            {% set _app = helper.participant.messaging or 'whatsapp' %}
+            {% set _msg = 'Hi ' ~ helper.participant.name ~ ', you are a helper for ' ~ task.name ~ ' on ' ~ day_names[day] ~ ' from ' ~ task.begin ~ '-' ~ task.end ~ '.' %}
+            <div>{{ helper.participant.name }}{% if helper.participant.phone %} <span class="quiet">{{ messaging_icon(_app) }} <a href="{{ msg_url(_app, helper.participant.phone, _msg) | trim }}" target="_blank" rel="noopener">{{ helper.participant.phone }}</a></span>{% endif %}</div>
             {% endfor %}
           {% else %}
             <span class="quiet">-</span>
