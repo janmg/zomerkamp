@@ -355,6 +355,9 @@ def import_tasks_from_excel(file_bytes, session) -> dict:
             existing = session.query(Task).filter_by(name=task_name, day=day, begin_time=start).first()
 
         if existing:
+            existing.name = task_name
+            existing.day = day
+            existing.begin_time = start
             existing.end_time = eind
             existing.people_required = people_required
             existing.time_block = time_block
