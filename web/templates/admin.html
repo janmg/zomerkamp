@@ -25,6 +25,10 @@
   <a href="/admin/download/per-person" style="display: flex;"><button type="button" style="width: 100%;">Download Per Person</button></a>
   <a href="/admin/download/schedule" style="display: flex;"><button type="button" style="width: 100%;">Download Schedule</button></a>
   <a href="/admin/download/points" style="display: flex;"><button type="button" style="width: 100%;">Download Points</button></a>
+  <form method="post" style="display: flex;">
+    <input type="hidden" name="action" value="recalculate">
+    <button type="submit" style="width: 100%;">Recalculate Schedule</button>
+  </form>
 </div>
 
 {% if replacement_modal %}

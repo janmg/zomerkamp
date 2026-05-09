@@ -13,7 +13,7 @@ from flask import Blueprint, Response, flash, redirect, render_template, request
 
 from models import Participant, Task, get_session
 from web.services import admin_service
-from web.services.schedule_service import generate_per_person_csv, generate_points_csv, generate_schedule_csv
+from web.services.schedule_service import generate_per_person_csv, generate_points_csv, generate_schedule_csv, run_schedule
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -102,6 +102,11 @@ def admin_panel():
                     task_id = _to_int(request.form.get("task_id"), "Task id")
                     person = (request.form.get("person") or "").strip()
                     flash(admin_service.remove_assignment(session, task_id, person), "success")
+                elif action == "recalculate":
+                    messages = run_schedule(session, keep_existing=False)
+                    session.commit()
+                    for msg in messages:
+                        flash(msg, "success")
                 else:
                     flash("Unsupported admin action.", "error")
             except ValueError as exc:
