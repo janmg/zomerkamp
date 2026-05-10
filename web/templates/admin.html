@@ -255,37 +255,44 @@
 </table>
 
 <h3 style="margin-top: 1rem;">Tasks</h3>
-<form method="get" class="form-grid" style="margin-bottom: 0.8rem;">
+<div class="form-grid" style="margin-bottom: 0.8rem; align-items: end;">
   <div>
-    <label for="day">Day filter (optional)</label>
-    <select id="day" name="day">
-      <option value="">All days</option>
+    <label for="day">Dag</label>
+    <select id="tasks-day-filter">
+      <option value="">Alle dagen</option>
       {% for day in day_options %}
-      <option value="{{ day }}" {% if day_filter == day %}selected{% endif %}>{{ day_names.get(day, "Day " ~ day) }}</option>
+      <option value="{{ day }}">{{ day_names.get(day, "Day " ~ day) }}</option>
       {% endfor %}
     </select>
   </div>
-  <div style="align-self: end;"><button type="submit">Apply Filter</button></div>
-</form>
+  <div>
+    <label for="tasks-task-filter">Taak</label>
+    <input id="tasks-task-filter" type="search" placeholder="Filter op taaknaam…" style="width:100%;">
+  </div>
+  <div>
+    <label for="tasks-person-filter">Persoon (leider / helper)</label>
+    <input id="tasks-person-filter" type="search" placeholder="Filter op naam…" style="width:100%;">
+  </div>
+</div>
 
-<table>
+<table id="tasks-table">
   <thead>
     <tr>
       <th>TID</th>
-      <th>Day</th>
-      <th>Time</th>
-      <th>Task</th>
+      <th>Dag</th>
+      <th>Tijd</th>
+      <th>Taak</th>
       <th>Block</th>
       <th>Pts</th>
       <th>Req</th>
-      <th>Lead</th>
+      <th>Leider</th>
       <th>Helpers</th>
       {% if sms_enabled %}<th>SMS</th>{% endif %}
     </tr>
   </thead>
   <tbody>
     {% for row in tasks %}
-    <tr>
+    <tr data-day="{{ row.day }}" data-task="{{ row.name | lower }}" data-person="{{ (row.lead ~ ' ' ~ row.helpers) | lower }}">
       <td>{{ row.id }}</td>
       <td>{{ row.day_name }}</td>
       <td>{{ row.time }}</td>
@@ -300,7 +307,7 @@
       {% endif %}
     </tr>
     {% else %}
-    <tr><td colspan="{% if sms_enabled %}10{% else %}9{% endif %}" class="empty">No tasks found.</td></tr>
+    <tr id="tasks-empty-row"><td colspan="{% if sms_enabled %}10{% else %}9{% endif %}" class="empty">No tasks found.</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -373,6 +380,35 @@
       }
     });
   }
+
+  // Tasks table live filter
+  (function () {
+    const daySel    = document.getElementById("tasks-day-filter");
+    const taskInput = document.getElementById("tasks-task-filter");
+    const personInput = document.getElementById("tasks-person-filter");
+    const tbody     = document.querySelector("#tasks-table tbody");
+
+    function applyFilter() {
+      const day    = daySel ? daySel.value : "";
+      const task   = taskInput.value.trim().toLowerCase();
+      const person = personInput.value.trim().toLowerCase();
+      let visible  = 0;
+      tbody.querySelectorAll("tr[data-day]").forEach(function (tr) {
+        const matchDay    = !day    || tr.dataset.day    === day;
+        const matchTask   = !task   || tr.dataset.task.includes(task);
+        const matchPerson = !person || tr.dataset.person.includes(person);
+        const show = matchDay && matchTask && matchPerson;
+        tr.style.display = show ? "" : "none";
+        if (show) visible++;
+      });
+      const emptyRow = document.getElementById("tasks-empty-row");
+      if (emptyRow) emptyRow.style.display = visible === 0 ? "" : "none";
+    }
+
+    if (daySel)     daySel.addEventListener("change", applyFilter);
+    if (taskInput)  taskInput.addEventListener("input", applyFilter);
+    if (personInput) personInput.addEventListener("input", applyFilter);
+  })();
 
   // Recalculate with live progress
   const recalcBtn = document.getElementById("recalculate-btn");

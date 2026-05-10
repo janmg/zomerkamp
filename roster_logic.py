@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 
 from models import Assignment, Participant, Task, Unavailability
@@ -20,6 +21,46 @@ TASK_PREFERENCE_MAP = {
     "activity": "organize afternoon games",
     "workshop": "organize afternoon games",
 }
+
+# ── Group-aware scheduling ────────────────────────────────────────────────────
+
+ONDERBOUW: frozenset[str] = frozenset({"1", "2", "3a", "3b"})
+BOVENBOUW: frozenset[str] = frozenset({"4", "5", "6+7", "8"})
+
+
+def task_group_requirement(task: Task) -> frozenset[str] | None:
+    """Return the set of participant groups the task targets, or None if unrestricted.
+
+    Detects:
+    - explicit group mention  → "groep 1", "groep 3a", …
+    - onderbouw (groepen 1-3b)
+    - bovenbouw (groepen 4-8)
+    """
+    name_lower = task.name.lower()
+
+    # Specific group: "groep 1", "groep 3a", "groep 6+7", …
+    m = re.search(r"\bgroep\s+([0-9]+(?:[ab+][0-9]*)?)", name_lower)
+    if m:
+        raw = m.group(1).strip()
+        if raw in ONDERBOUW | BOVENBOUW:
+            return frozenset({raw})
+
+    if "onderbouw" in name_lower:
+        return ONDERBOUW
+    if "bovenbouw" in name_lower:
+        return BOVENBOUW
+
+    return None
+
+
+def _group_score(participant: Participant, task: Task) -> int:
+    """0 = matches task group requirement (or no requirement); 1 = requirement exists but no match."""
+    required = task_group_requirement(task)
+    if required is None:
+        return 0
+    if participant.group and participant.group in required:
+        return 0
+    return 1
 
 
 def compute_total_points(session) -> dict[int, int]:
@@ -75,12 +116,13 @@ def participant_has_conflict(session, participant_id: int, task: Task, exclude_t
     return False
 
 
-def candidate_score(participant: Participant, task: Task, totals: dict[int, int]) -> tuple[int, int, str]:
+def candidate_score(participant: Participant, task: Task, totals: dict[int, int]) -> tuple:
     current_total = totals.get(participant.id, 0)
     projected_total = current_total + task.points
+    group = _group_score(participant, task)
     mismatch = 0 if task_preferred_by(task, participant) else 1
-    # Fairness first: keep projected totals balanced, then use preference as tie-breaker.
-    return (projected_total, current_total, mismatch, participant.name.lower())
+    # Fairness first → group match → task preference → name for determinism.
+    return (projected_total, current_total, group, mismatch, participant.name.lower())
 
 
 def eligible_candidates(session, task: Task, excluded_ids: set[int] | None = None) -> list[Participant]:
